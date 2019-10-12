@@ -1,128 +1,132 @@
 #include "mst.hpp"
 
-#include <string>
-#include <iostream>
-#include <iterator>
-#include <exception>
-#include <random>
 #include <fmt/format.h>
+#include <random>
+#include <string>
+#include <fstream>
 
-pea::MSTMatrix::MSTMatrix(int32_t size) noexcept
-{
-  this->tree = new std::remove_pointer<decltype(this->tree)>::type[size*size];
-  this->weight = 0;
-  this->size = size;
+#include "debug_print.h"
 
-  std::fill(this->tree, this->tree+(size*size), 0);
-}
+namespace pea {
 
-pea::MSTMatrix::MSTMatrix(MSTMatrix &&mm) noexcept
-:tree(mm.tree), weight(mm.weight), size(mm.size)
-{
-  mm.tree = nullptr;
-  mm.weight = 0;
-  mm.size = 0;
-}
-
-pea::MSTMatrix::~MSTMatrix()
-{
-  delete [] this->tree;
-}
-
-void pea::MSTMatrix::add_single(pea::Edge edge) noexcept
-{
-  assert(edge.v1 < this->size);
-  assert(edge.v2 < this->size);
-
-  this->set(edge.v1, edge.v2, edge.weight);
-  this->weight += edge.weight;
-}
-
-void pea::MSTMatrix::add(pea::Edge edge) noexcept
-{
-  assert(edge.v1 < this->size);
-  assert(edge.v2 < this->size);
-
-  this->set(edge.v1, edge.v2, edge.weight);
-  this->set(edge.v2, edge.v1, edge.weight);
-
-  this->weight += edge.weight;
-}
-
-int32_t pea::MSTMatrix::get(int32_t x, int32_t y)
-{
-  assert(x < this->size);
-  assert(x >= 0);
-  assert(y < this->size);
-  assert(y >= 0);
-
-  return this->tree[x + y * this->size];
-}
-
-void pea::MSTMatrix::set(int32_t x, int32_t y, int32_t val)
-{
-  assert(x < this->size);
-  assert(x >= 0);
-  assert(y < this->size);
-  assert(y >= 0);
-
-  this->tree[x + y * this->size] = val;
-}
-
-void pea::MSTMatrix::resize(int32_t newsize) noexcept
-{
-  delete [] this->tree;
-  this->tree = new int32_t[newsize*newsize]();
-  this->size = newsize;
-  this->weight = 0;
-}
-
-void pea::MSTMatrix::display() noexcept
-{
-  fmt::print("Weight: {}\n", this->weight);
-
-  fmt::print("{:<5}"," ");
-  for(auto x = 0; x < this->size; ++x)
+  MSTMatrix::MSTMatrix(int32_t size) noexcept
   {
-    fmt::print("{:<3} ", x);
+    this->tree =
+      new std::remove_pointer<decltype(this->tree)>::type[size * size];
+    this->size = size;
+
+    std::fill(this->tree, this->tree + (size * size), 0);
   }
-  putchar('\n');
 
-  for(auto x = 0; x < this->size+1; ++x)
+  MSTMatrix::MSTMatrix(MSTMatrix &&mm) noexcept
+    : tree(mm.tree)
+    , size(mm.size)
   {
-    fmt::print("----");
+    mm.tree = nullptr;
+    mm.size = 0;
   }
-  putchar('\n');
 
-  for(auto y = 0; y < this->size; ++y)
+  MSTMatrix::~MSTMatrix() { delete[] this->tree; }
+
+  void
+  MSTMatrix::add_single(Edge edge) noexcept
   {
-    fmt::print("{:<2} | ", y);
-    for(auto x = 0; x < this->size; ++x)
-    {
-      fmt::print("{:<3} ", this->get(x,y));
+    this->set(edge.v1, edge.v2, edge.weight);
+  }
+
+  void
+  MSTMatrix::add(Edge edge) noexcept
+  {
+    this->set(edge.v1, edge.v2, edge.weight);
+    this->set(edge.v2, edge.v1, edge.weight);
+  }
+
+  int32_t
+  MSTMatrix::get(size_t x, size_t y)
+  {
+    assert(x < this->size);
+    assert(y < this->size);
+
+    return this->tree[x + y * this->size];
+  }
+
+  void
+  MSTMatrix::set(size_t x, size_t y, int64_t val)
+  {
+    assert(x < this->size);
+    assert(y < this->size);
+
+    this->tree[x + y * this->size] = val;
+  }
+
+  void
+  MSTMatrix::resize(size_t newsize) noexcept
+  {
+    delete[] this->tree;
+    this->tree = new int64_t[newsize * newsize]();
+    this->size = newsize;
+  }
+
+  void
+  MSTMatrix::display() noexcept
+  {
+    fmt::print("{:<5}", " ");
+    for (size_t x = 0; x < this->size; ++x) {
+      fmt::print("{:<3} ", x);
     }
     putchar('\n');
+
+    for (size_t x = 0; x < this->size + 1; ++x) {
+      fmt::print("----");
+    }
+    putchar('\n');
+
+    for (size_t y = 0; y < this->size; ++y) {
+      fmt::print("{:<2} | ", y);
+      for (size_t x = 0; x < this->size; ++x) {
+        fmt::print("{:<3} ", this->get(x, y));
+      }
+      putchar('\n');
+    }
   }
-}
 
-pea::MSTMatrix
-pea::MSTMatrix::buildFromFile(const char *filename)
-{
-  std::ifstream file(filename);
+#define CHECK_STREAM(stream) \
+  if (stream.fail()) { \
+    debug_printerr("Failed\n"); \
+    return {}; \
+  }
 
-  if(!file.is_open())
-    throw std::runtime_error(fmt::format("Cant open file {}", filename));
+  MSTMatrix
+  MSTMatrix::buildFromFile(const char *filename)
+  {
+    std::ifstream is(filename);
 
-  int32_t node_cnt;
-  std::string line;
+    // Seems like each file starts with data name.
+    std::string data_name;
+    is >> data_name;
+    CHECK_STREAM(is);
 
-  // Ignore filename
-  std::getline(file, line);
+    size_t node_count;
+    is >> node_count;
+    CHECK_STREAM(is);
 
-  file >> node_cnt;
+    MSTMatrix matrix(node_count);
 
-  MSTMatrix matrix(node_cnt);
+    for(size_t y = 0; y < node_count; ++y) {
+      for(size_t x = 0; x < node_count; ++x) {
 
-  return matrix;
-}
+        int64_t weight;
+        is >> weight;
+        CHECK_STREAM(is);
 
+        matrix.set(x, y, weight);
+
+      }
+    }
+
+    return matrix;
+  }
+
+#undef CHECK_STREAM
+
+} // namespace pea
