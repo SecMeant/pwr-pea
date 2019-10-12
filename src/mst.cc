@@ -1,6 +1,5 @@
 #include "mst.hpp"
 
-#include <fstream>
 #include <string>
 #include <iostream>
 #include <iterator>

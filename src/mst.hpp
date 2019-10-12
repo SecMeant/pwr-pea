@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <fstream>
 #include <fmt/ostream.h>
 
 #include <list>
@@ -92,7 +93,6 @@ namespace pea {
     static MSTMatrix
     buildFromFile(const char *filename);
 
-    static MSTMatrix
   };
 
 }; // namespace pea
