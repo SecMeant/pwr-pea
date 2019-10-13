@@ -11,22 +11,22 @@ namespace pea {
 
   MSTMatrix::MSTMatrix(int32_t size) noexcept
   {
-    this->tree =
-      new std::remove_pointer<decltype(this->tree)>::type[size * size];
-    this->size = size;
+    this->m_data =
+      new std::remove_pointer<decltype(this->m_data)>::type[size * size];
+    this->m_size = size;
 
-    std::fill(this->tree, this->tree + (size * size), 0);
+    std::fill(this->m_data, this->m_data + (size * size), 0);
   }
 
   MSTMatrix::MSTMatrix(MSTMatrix &&mm) noexcept
-    : tree(mm.tree)
-    , size(mm.size)
+    : m_data(mm.m_data)
+    , m_size(mm.m_size)
   {
-    mm.tree = nullptr;
-    mm.size = 0;
+    mm.m_data = nullptr;
+    mm.m_size = 0;
   }
 
-  MSTMatrix::~MSTMatrix() { delete[] this->tree; }
+  MSTMatrix::~MSTMatrix() { delete[] this->m_data; }
 
   void
   MSTMatrix::add_single(Edge edge) noexcept
@@ -42,48 +42,49 @@ namespace pea {
   }
 
   int32_t
-  MSTMatrix::get(size_t x, size_t y)
+  MSTMatrix::get(size_t x, size_t y) const noexcept
   {
-    assert(x < this->size);
-    assert(y < this->size);
+    debug_printerr("Point {} {}\n", x, y);
+    assert(x < this->m_size);
+    assert(y < this->m_size);
 
-    return this->tree[x + y * this->size];
+    return this->m_data[x + y * this->m_size];
   }
 
   void
   MSTMatrix::set(size_t x, size_t y, int64_t val)
   {
-    assert(x < this->size);
-    assert(y < this->size);
+    assert(x < this->m_size);
+    assert(y < this->m_size);
 
-    this->tree[x + y * this->size] = val;
+    this->m_data[x + y * this->m_size] = val;
   }
 
   void
   MSTMatrix::resize(size_t newsize) noexcept
   {
-    delete[] this->tree;
-    this->tree = new int64_t[newsize * newsize]();
-    this->size = newsize;
+    delete[] this->m_data;
+    this->m_data = new int64_t[newsize * newsize]();
+    this->m_size = newsize;
   }
 
   void
   MSTMatrix::display() noexcept
   {
     fmt::print("{:<5}", " ");
-    for (size_t x = 0; x < this->size; ++x) {
+    for (size_t x = 0; x < this->m_size; ++x) {
       fmt::print("{:<3} ", x);
     }
     putchar('\n');
 
-    for (size_t x = 0; x < this->size + 1; ++x) {
+    for (size_t x = 0; x < this->m_size + 1; ++x) {
       fmt::print("----");
     }
     putchar('\n');
 
-    for (size_t y = 0; y < this->size; ++y) {
+    for (size_t y = 0; y < this->m_size; ++y) {
       fmt::print("{:<2} | ", y);
-      for (size_t x = 0; x < this->size; ++x) {
+      for (size_t x = 0; x < this->m_size; ++x) {
         fmt::print("{:<3} ", this->get(x, y));
       }
       putchar('\n');
@@ -128,5 +129,26 @@ namespace pea {
   }
 
 #undef CHECK_STREAM
+
+  size_t cost(const MSTMatrix& matrix, const Path& path) noexcept
+  {
+    auto f = path.begin();
+    auto n = f+1;
+    const auto end = path.end();
+    size_t cost = 0;
+
+    while(n != end) {
+      auto tmp_cost = matrix.get(*f, *n);
+
+      assert(tmp_cost > 0);
+
+      cost += static_cast<size_t>(tmp_cost);
+
+      ++f;
+      ++n;
+    }
+
+    return cost;
+  }
 
 } // namespace pea

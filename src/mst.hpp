@@ -1,7 +1,9 @@
 #pragma once
 #include <cstdint>
-
-#include <list>
+#include <initializer_list>
+#include <vector>
+#include <cassert>
+#include <numeric>
 
 namespace pea {
   struct Edge
@@ -47,8 +49,8 @@ namespace pea {
   class MSTMatrix
   {
   private:
-    int64_t *tree;
-    size_t size;
+    int64_t *m_data;
+    size_t m_size;
 
   public:
     MSTMatrix() noexcept : MSTMatrix(0) {}
@@ -63,7 +65,7 @@ namespace pea {
     add(Edge edge) noexcept;
 
     int32_t
-    get(size_t x, size_t y);
+    get(size_t x, size_t y) const noexcept;
 
     void
     set(size_t x, size_t y, int64_t val);
@@ -79,6 +81,34 @@ namespace pea {
     static MSTMatrix
     buildFromFile(const char *filename);
 
+    constexpr auto size() const noexcept
+    { return this->m_size; }
+
+    constexpr auto data() const noexcept
+    { return this->m_data; }
+
   };
+
+  using point_type = size_t;
+
+  class Path : public std::vector<point_type>
+  {
+  public:
+    Path(std::initializer_list<point_type> il) noexcept
+    : std::vector<point_type>(il){}
+
+    template<typename... Args>
+    Path(Args&&... args) noexcept
+    : std::vector<point_type>(std::forward<Args>(args)...) {}
+
+    static Path generate_simple(size_t node_count) noexcept
+    {
+      std::vector<point_type> v(node_count);
+      std::iota(v.begin(), v.end(), 0);
+      return v;
+    }
+  };
+
+  size_t cost(const MSTMatrix& matrix, const Path& path) noexcept;
 
 }; // namespace pea
