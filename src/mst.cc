@@ -44,7 +44,6 @@ namespace pea {
   int32_t
   MSTMatrix::get(size_t x, size_t y) const noexcept
   {
-    debug_printerr("Point {} {}\n", x, y);
     assert(x < this->m_size);
     assert(y < this->m_size);
 
@@ -144,7 +143,7 @@ namespace pea {
 
       cost += static_cast<size_t>(tmp_cost);
 
-      fmt::print("{} {}\n", *f, *n);
+      debug_print("{} -> {}\n", *f, *n);
       ++f;
       ++n;
     }
