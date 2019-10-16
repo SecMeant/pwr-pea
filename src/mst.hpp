@@ -105,6 +105,7 @@ namespace pea {
     {
       std::vector<point_type> v(node_count);
       std::iota(v.begin(), v.end(), 0);
+      v.push_back(0);
       return v;
     }
   };

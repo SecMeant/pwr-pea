@@ -144,6 +144,7 @@ namespace pea {
 
       cost += static_cast<size_t>(tmp_cost);
 
+      fmt::print("{} {}\n", *f, *n);
       ++f;
       ++n;
     }
