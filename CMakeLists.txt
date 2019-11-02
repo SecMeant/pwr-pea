@@ -9,6 +9,7 @@ else()
 endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g -ggdb -fsanitize=address")
+set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -flto -march=native")
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -fno-exceptions")
 
 if(LOG_ERRORS)

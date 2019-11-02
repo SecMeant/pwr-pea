@@ -75,7 +75,7 @@ namespace pea {
     resize(size_t newsize) noexcept;
 
     void
-    display() noexcept;
+    display() const noexcept;
 
     // Returns matrix with zero size on failure
     static MSTMatrix
@@ -105,11 +105,12 @@ namespace pea {
     {
       std::vector<point_type> v(node_count);
       std::iota(v.begin(), v.end(), 0);
-      v.push_back(0);
       return v;
     }
   };
 
-  size_t cost(const MSTMatrix& matrix, const Path& path) noexcept;
+  using cost_t = size_t;
+  cost_t cost(const MSTMatrix& matrix, const Path& path) noexcept;
 
 }; // namespace pea
+

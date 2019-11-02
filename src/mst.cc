@@ -68,7 +68,7 @@ namespace pea {
   }
 
   void
-  MSTMatrix::display() noexcept
+  MSTMatrix::display() const noexcept
   {
     fmt::print("{:<5}", " ");
     for (size_t x = 0; x < this->m_size; ++x) {
@@ -129,25 +129,26 @@ namespace pea {
 
 #undef CHECK_STREAM
 
-  size_t cost(const MSTMatrix& matrix, const Path& path) noexcept
+  cost_t cost(const MSTMatrix& matrix, const Path& path) noexcept
   {
     auto f = path.begin();
     auto n = f+1;
     const auto end = path.end();
-    size_t cost = 0;
+    cost_t cost = 0;
 
     while(n != end) {
       auto tmp_cost = matrix.get(*f, *n);
 
       assert(tmp_cost > 0);
 
-      cost += static_cast<size_t>(tmp_cost);
+      cost += static_cast<cost_t>(tmp_cost);
 
       debug_print("{} -> {}\n", *f, *n);
       ++f;
       ++n;
     }
 
+    cost += static_cast<cost_t>(matrix.get(*f, path[0]));
     return cost;
   }
 
