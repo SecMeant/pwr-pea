@@ -1,5 +1,6 @@
 #include "timeutils.hpp"
 #include "mst.hpp"
+#include "path.hpp"
 #include "utils.hpp"
 #include <limits>
 #include <fmt/format.h>
