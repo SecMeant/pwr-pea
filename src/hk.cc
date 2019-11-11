@@ -4,7 +4,7 @@
 
 namespace pea {
 
-  constexpr auto max_problem_size = 32;
+  static constexpr auto max_problem_size = 32;
 
   // Generates first sub paths -- from 0th node to all the rest
   static void
@@ -41,6 +41,42 @@ namespace pea {
     }
 
     return minDist;
+  }
+
+  static Path
+  hk_find_optimal_path(const MSTMatrix &matrix, MemoTable &memo) noexcept
+  {
+    constexpr point_type start_node = 0;
+    auto node_count = matrix.size();
+    point_type last_index = 0;
+    std::bitset<max_problem_size> state = (1 << node_count) - 1;
+    Path path{ start_node };
+
+    for (size_t i = node_count - 1; i >= 1; --i) {
+      auto index = -1;
+      for (size_t j = 0; j < node_count; ++j) {
+
+        if (j == start_node || !hk_isset(j, state))
+          continue;
+
+        if (index == -1)
+          index = j;
+
+        cost_t prevDist = memo.get(index, state.to_ulong()) +
+                          matrix.get(index, last_index);
+        cost_t newDist =
+          memo.get(j, state.to_ulong()) + matrix.get(j, last_index);
+
+        if (newDist < prevDist)
+          index = j;
+      }
+
+      path.push_back(index);
+      state.reset(index);
+      last_index = index;
+    }
+
+    return path;
   }
 
   static Path
@@ -86,7 +122,7 @@ namespace pea {
       }
     }
 
-    return { hk_find_best_cost(matrix, memo) };
+    return hk_find_optimal_path(matrix, memo);
   }
 
   Path

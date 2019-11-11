@@ -59,7 +59,7 @@ namespace pea {
     TSP(size_t v) noexcept;
   };
 
-  Path
+  inline Path
   dfs(const MSTMatrix &matrix)
   {
     tspdfs solver(matrix);

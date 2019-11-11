@@ -2,7 +2,7 @@
 
 namespace pea {
   void
-  tspdfs::TSP(size_t v) noexcept;
+  tspdfs::TSP(size_t v) noexcept
   {
     size_t u;
 

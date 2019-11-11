@@ -17,4 +17,15 @@ main(int argc, char **argv)
 
   auto matrix = MSTMatrix::buildFromFile(argv[1]);
   matrix.display();
+
+  auto p = hksolve(matrix);
+
+  for (auto &pp : p)
+    fmt::print("{} -> ", pp);
+  fmt::print("\n");
+
+  p = bt(matrix);
+  for (auto &pp : p)
+    fmt::print("{} -> ", pp);
+  fmt::print("\n");
 }

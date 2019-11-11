@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 
 template<typename It>
 bool
@@ -26,12 +27,12 @@ next_permutation(It begin, It end)
         /* pass */;
 
       iter_swap(i, k);
-      reverse(j, end);
+      std::reverse(j, end);
       return true;
     }
 
     if (i == begin) {
-      reverse(begin, end);
+      std::reverse(begin, end);
       return false;
     }
   }
