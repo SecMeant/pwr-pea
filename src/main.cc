@@ -56,5 +56,9 @@ main(int argc, char **argv)
   auto matrix = MSTMatrix::buildFromFile(argv[1]);
   matrix.display();
 
-  measure_and_log("bt", "measure.log", bt, matrix);
+  auto p = pea::hksolve(matrix);
+
+  fmt::print("Cost:{}\n", p[0]);
+
+  bt(matrix);
 }
