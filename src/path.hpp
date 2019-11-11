@@ -1,6 +1,8 @@
 #pragma once
-#include "typealias.hpp"
+#include <limits>
+
 #include "mst.hpp"
+#include "typealias.hpp"
 
 namespace pea {
 
@@ -26,6 +28,8 @@ namespace pea {
       return v;
     }
   };
+
+  constexpr cost_t cost_inf = std::numeric_limits<cost_t>::max();
 
   cost_t
   cost(const MSTMatrix &matrix, const Path &path) noexcept;

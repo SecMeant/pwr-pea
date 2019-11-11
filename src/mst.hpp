@@ -1,9 +1,9 @@
 #pragma once
+#include <cassert>
 #include <cstdint>
 #include <initializer_list>
-#include <vector>
-#include <cassert>
 #include <numeric>
+#include <vector>
 
 namespace pea {
   struct Edge
@@ -53,7 +53,9 @@ namespace pea {
     size_t m_size;
 
   public:
-    MSTMatrix() noexcept : MSTMatrix(0) {}
+    MSTMatrix() noexcept
+      : MSTMatrix(0)
+    {}
     MSTMatrix(int32_t size) noexcept;
     MSTMatrix(MSTMatrix &&mm) noexcept;
     ~MSTMatrix();
@@ -81,13 +83,17 @@ namespace pea {
     static MSTMatrix
     buildFromFile(const char *filename);
 
-    constexpr auto size() const noexcept
-    { return this->m_size; }
+    constexpr auto
+    size() const noexcept
+    {
+      return this->m_size;
+    }
 
-    constexpr auto data() const noexcept
-    { return this->m_data; }
-
+    constexpr auto
+    data() const noexcept
+    {
+      return this->m_data;
+    }
   };
 
 }; // namespace pea
-
