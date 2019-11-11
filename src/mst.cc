@@ -1,9 +1,9 @@
 #include "mst.hpp"
 
 #include <fmt/format.h>
+#include <fstream>
 #include <random>
 #include <string>
-#include <fstream>
 
 #include "debug_print.h"
 
@@ -90,10 +90,10 @@ namespace pea {
     }
   }
 
-#define CHECK_STREAM(stream) \
-  if (stream.fail()) { \
-    debug_printerr("Failed\n"); \
-    return {}; \
+#define CHECK_STREAM(stream)                                              \
+  if (stream.fail()) {                                                    \
+    debug_printerr("Failed\n");                                           \
+    return {};                                                            \
   }
 
   MSTMatrix
@@ -112,15 +112,14 @@ namespace pea {
 
     MSTMatrix matrix(node_count);
 
-    for(size_t y = 0; y < node_count; ++y) {
-      for(size_t x = 0; x < node_count; ++x) {
+    for (size_t y = 0; y < node_count; ++y) {
+      for (size_t x = 0; x < node_count; ++x) {
 
         int64_t weight;
         is >> weight;
         CHECK_STREAM(is);
 
         matrix.set(x, y, weight);
-
       }
     }
 

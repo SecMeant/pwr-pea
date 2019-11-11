@@ -1,5 +1,5 @@
-#include "combgen.hpp"
 #include "hk.hpp"
+#include "combgen.hpp"
 #include <fmt/format.h>
 
 namespace pea {
@@ -34,7 +34,8 @@ namespace pea {
       if (e == start_node)
         continue;
 
-      cost_t newDist = memo.get(e, endstate.to_ulong()) + matrix.get(e, start_node);
+      cost_t newDist =
+        memo.get(e, endstate.to_ulong()) + matrix.get(e, start_node);
       if (newDist < minDist)
         minDist = newDist;
     }
@@ -73,7 +74,8 @@ namespace pea {
             if (e == start_node || e == next || !hk_isset(e, subset))
               continue;
 
-            cost_t newDist = memo.get(e, state.to_ulong()) + matrix.get(e, next);
+            cost_t newDist =
+              memo.get(e, state.to_ulong()) + matrix.get(e, next);
 
             if (newDist < minDist)
               minDist = newDist;
@@ -84,7 +86,7 @@ namespace pea {
       }
     }
 
-    return {hk_find_best_cost(matrix, memo)};
+    return { hk_find_best_cost(matrix, memo) };
   }
 
   Path

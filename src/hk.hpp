@@ -1,6 +1,6 @@
 #include <bitset>
-#include <vector>
 #include <cstdint>
+#include <vector>
 
 #include "path.hpp"
 #include "typealias.hpp"
@@ -49,23 +49,33 @@ namespace pea {
 
   public:
     inline explicit MemoTable(size_t width, size_t height) noexcept
-    :m_data(new value_t[width*height]), width(width) {}
+      : m_data(new value_t[width * height])
+      , width(width)
+    {}
 
-    MemoTable(const MemoTable& other) noexcept = delete;
-    MemoTable(MemoTable&& other) noexcept = delete;
-    void operator=(const MemoTable &other) noexcept = delete;
-    void operator=(MemoTable &&other) noexcept = delete;
+    MemoTable(const MemoTable &other) noexcept = delete;
+    MemoTable(MemoTable &&other) noexcept = delete;
+    void
+    operator=(const MemoTable &other) noexcept = delete;
+    void
+    operator=(MemoTable &&other) noexcept = delete;
 
-    ~MemoTable() noexcept
-    { delete [] this->m_data; }
+    ~MemoTable() noexcept { delete[] this->m_data; }
 
-    void set(size_t x, size_t y, value_t value) noexcept
-    { this->m_data[x + y*this->width] = value; }
+    void
+    set(size_t x, size_t y, value_t value) noexcept
+    {
+      this->m_data[x + y * this->width] = value;
+    }
 
-    value_t get(size_t x, size_t y) const noexcept
-    { return this->m_data[x + y*this->width]; }
+    value_t
+    get(size_t x, size_t y) const noexcept
+    {
+      return this->m_data[x + y * this->width];
+    }
   };
 
-  Path hksolve(const MSTMatrix &matrix);
+  Path
+  hksolve(const MSTMatrix &matrix);
 
 } // namespace pea

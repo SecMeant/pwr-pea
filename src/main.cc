@@ -1,7 +1,7 @@
+#include "bt.hpp"
+#include "hk.hpp"
 #include "mst.hpp"
 #include "path.hpp"
-#include "hk.hpp"
-#include "bt.hpp"
 #include "timeutils.hpp"
 
 #include <fmt/format.h>
@@ -20,5 +20,4 @@ main(int argc, char **argv)
   auto p = pea::hksolve(matrix);
 
   fmt::print("Cost:{}\n", p[0]);
-
 }

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <bitset>
-#include <vector>
 #include <iostream>
+#include <vector>
 
 using uint = unsigned int;
 
@@ -13,7 +13,10 @@ using subset_t = std::bitset<size>;
 // TODO move to hk impl file
 template<size_t bitset_size, typename subset_type = subset_t<bitset_size>>
 static void
-comb(subset_type set, uint at, uint r, uint n,
+comb(subset_type set,
+     uint at,
+     uint r,
+     uint n,
      std::vector<subset_type> &subsets)
 {
   if (r == 0) {
@@ -27,7 +30,7 @@ comb(subset_type set, uint at, uint r, uint n,
 
   for (uint i = at; i < n; i++) {
     set |= (1 << i);
-    comb<bitset_size>(set, i+1, r-1, n, subsets);
+    comb<bitset_size>(set, i + 1, r - 1, n, subsets);
     set &= ~(1 << i);
   }
 }

@@ -25,4 +25,4 @@ namespace pea {
     cost += static_cast<cost_t>(matrix.get(*f, path[0]));
     return cost;
   }
-}
+} // namespace pea

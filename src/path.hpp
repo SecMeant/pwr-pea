@@ -1,8 +1,8 @@
 #pragma once
 #include <limits>
 
-#include "typealias.hpp"
 #include "mst.hpp"
+#include "typealias.hpp"
 
 namespace pea {
 
