@@ -80,7 +80,6 @@ namespace pea {
 
             memo.set(next, subset.to_ulong(), minDist);
           }
-          fmt::print("New cost: {}\n", minDist);
         }
       }
     }
