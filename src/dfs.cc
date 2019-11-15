@@ -16,7 +16,8 @@ namespace pea {
 
         if (!visited[u]) {
           lcost += matrix.get(v, u);
-          TSP(u);
+          if (lcost < rcost)
+            TSP(u);
           lcost -= matrix.get(v, u);
         }
       }

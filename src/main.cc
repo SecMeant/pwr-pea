@@ -22,10 +22,14 @@ main(int argc, char **argv)
 
   for (auto &pp : p)
     fmt::print("{} -> ", pp);
-  fmt::print("\n");
+  fmt::print("\nCost {}\n", cost(matrix, p));
 
-  p = bt(matrix);
-  for (auto &pp : p)
+  return 0;
+
+  tspdfs solver(matrix);
+  solver.solve();
+
+  for (auto &pp : solver.result())
     fmt::print("{} -> ", pp);
-  fmt::print("\n");
+      fmt::print("\n Cost {}\n", cost(matrix, solver.result()));
 }

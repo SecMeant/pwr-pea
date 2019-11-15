@@ -31,7 +31,7 @@ comb(subset_type set,
   for (uint i = at; i < n; i++) {
     set |= (1 << i);
     comb<bitset_size>(set, i + 1, r - 1, n, subsets);
-    set &= ~(1 << i);
+    set ^= (1 << i);
   }
 }
 

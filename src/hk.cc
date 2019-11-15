@@ -1,5 +1,5 @@
-#include "hk.hpp"
 #include "combgen.hpp"
+#include "hk.hpp"
 #include <fmt/format.h>
 
 namespace pea {
@@ -30,12 +30,11 @@ namespace pea {
     std::bitset<max_problem_size> endstate((1 << node_count) - 1);
     cost_t minDist = cost_inf;
 
-    for (size_t e = 0; e < node_count; ++e) {
-      if (e == start_node)
-        continue;
-
+    static_assert(start_node == 0);
+    for (size_t e = start_node + 1; e < node_count; ++e) {
       cost_t newDist =
         memo.get(e, endstate.to_ulong()) + matrix.get(e, start_node);
+
       if (newDist < minDist)
         minDist = newDist;
     }
@@ -44,11 +43,11 @@ namespace pea {
   }
 
   static Path
-  hk_find_optimal_path(const MSTMatrix &matrix, MemoTable &memo) noexcept
+  hk_find_optimal_path2(const MSTMatrix &matrix, MemoTable &memo) noexcept
   {
     constexpr point_type start_node = 0;
     auto node_count = matrix.size();
-    point_type last_index = 0;
+    point_type last_index = start_node;
     std::bitset<max_problem_size> state = (1 << node_count) - 1;
     Path path{ start_node };
 
@@ -80,6 +79,43 @@ namespace pea {
   }
 
   static Path
+  hk_find_optimal_path(const MSTMatrix &matrix, MemoTable &memo) noexcept
+  {
+    constexpr point_type start_node = 0;
+    auto node_count = matrix.size();
+    std::bitset<max_problem_size> state = (1 << node_count) - 1;
+    Path path;
+    path.resize(matrix.size());
+    size_t last = start_node;
+
+    for (size_t i = node_count - 1; i >= 1; --i) {
+
+      cost_t minDist = cost_inf;
+      size_t end_node = start_node;
+
+      for (size_t e = 0; e < node_count; ++e) {
+
+        if (!hk_isset(e, state) || e == start_node)
+          continue;
+
+        cost_t newDist = memo.get(e, state.to_ulong());
+        newDist += matrix.get(e, last);
+
+        if (newDist < minDist) {
+          minDist = newDist;
+          end_node = e;
+        }
+      }
+
+      last = end_node;
+      path[i] = end_node;
+      state.reset(end_node);
+    }
+
+    return path;
+  }
+
+  static Path
   hk_solve(const MSTMatrix &matrix, MemoTable &memo)
   {
     constexpr point_type start_node = 0;
@@ -96,6 +132,8 @@ namespace pea {
 
     for (size_t r = 3; r <= node_count; ++r) {
       for (auto &subset : comb<max_problem_size>(r, node_count)) {
+        if (!hk_isset(start_node, subset))
+          continue;
         for (size_t next = 0; next < node_count; ++next) {
 
           if (next == start_node || !hk_isset(next, subset))
@@ -116,8 +154,9 @@ namespace pea {
             if (newDist < minDist)
               minDist = newDist;
 
-            memo.set(next, subset.to_ulong(), minDist);
           }
+
+          memo.set(next, subset.to_ulong(), minDist);
         }
       }
     }

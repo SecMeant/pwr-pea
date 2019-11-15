@@ -51,6 +51,7 @@ namespace pea {
     void
     solve() noexcept
     {
+      this->reset();
       TSP(0);
     }
 
