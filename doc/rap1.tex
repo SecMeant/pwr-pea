@@ -1,0 +1,234 @@
+\documentclass[polish,polish,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{pslatex}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{anysize}
+\usepackage{pgfgantt}
+\usepackage{latexsym,amsmath}
+\marginsize{2.5cm}{2.5cm}{3cm}{3cm}
+
+
+\newcommand{\name}[1]{\sffamily\bfseries\scriptsize #1}
+
+\newcommand{\frontpage}[8]{
+%% #1 - nazwa kursu
+%% #2 - kierunek 
+%% #3 - termin 
+%% #4 - temat 
+%% #5 - problem
+%% #6 - data
+
+\vspace{2cm}
+
+\begin{tabular}{|p{0.72\textwidth}|p{0.28\textwidth}|}
+\hline
+\multicolumn{2}{|c|}{}\\
+\multicolumn{2}{|c|}{{\LARGE #1}}\\
+\multicolumn{2}{|c|}{}\\
+\hline
+\name{Kierunek} & \name{Termin}\\
+\multicolumn{1}{|c|}{\textit{#2}} & \multicolumn{1}{|c|}{\textit{#3}} \\
+\hline
+\name{Temat} & \name{Problem}\\
+\multicolumn{1}{|c|}{\textit{#4}} & \multicolumn{1}{|c|}{\textit{#5}} \\
+\hline
+\name{Prowadzący} & \name{data}\\
+\multicolumn{1}{|c|}{\textit{Patryk Wlazłyń}} & \multicolumn{1}{|c|}{\textit{#6}} \\
+\hline
+\end{tabular}
+
+}
+
+\usepackage{listings}
+\usepackage{xcolor} % for setting colors
+
+
+
+% set the default code style
+\lstset{ % General setup for the package
+	basicstyle=\small,
+	numbers=left,
+	frame=tb,
+	tabsize=2,
+	columns=fixed,
+	showstringspaces=false,
+	showtabs=false,
+	keepspaces,
+	commentstyle=\color{red},
+	keywordstyle=\color{blue}
+}
+
+\title{Sprawozdanie SPD}
+\begin{document}
+% #1 - nazwa kursu #2 - kierunek  #3 - termin #4 - temat #5 - problem #6 - data
+\frontpage{Projektowanie Efektywnych Algorytmów}{Informatyka}{Czwartek 19:05}{Metoda przeglądu zupełnego, podzialu i ograniczeń, oraz programowanie dynamiczne.}{TSP}{\today}
+\pagestyle{empty}
+\newpage
+
+\section{Opis problemu}
+
+Problem komiwojażera (ang. travelling salesman problem, TSP) jest zagadnieniem optymalizacyjnym, polegającym na znalezieniu minimalnego cyklu Hamiltona w pełnym grafie ważonym\cite{TSPWiki:1}. Do rozwiązania problemu wymagana jest implementacja kilku struktur danych o których szerzej w dalszej częsci.
+Do implementacji rozwiązania posłużył język C++, gdyż zdaniem autora pozwala on na wygodne opisywanie wysokopoziomowej abstrakcji oraz dostępne kompilatory
+potrafią generować efektywny kod. Testy przeprowadzane były na systemie Ubuntu Linux 19.10 64bit z kompilatorem clang 9.0 na procesorze Intel i5-3570K (4x3.8GHz) z 8GB RAM.
+
+\section{Struktury danych - sposób przechowywania informacji}
+
+\subsection{Graf}
+
+Problem komiwojażera można zdefiniować dla różnej ilości wieszchołków, dalej nazywaną wielkością problemu oraz różnych wag poszczególnych dróg łączących te wierzchołki.
+Z tego względu wymaganym mechanizmem wczytywania informacji o problemie będzie plik, który zawiera wielkość grafu oraz wagi poszczególnych wierzchołków.
+Wagi podawane są w postaci macierzy, w której kolejne elementy w wierszu oddzielane są znakami białymi, a same wiersze oddzielane są znakiem nowej lini.
+Tak zapisane dane należy sparsować i zapisać w postaci pozwalającej na jak najprostszy oraz najszybszy sposób, ponieważ będzie ona intensywnie wykorzystywana przy rozwiązywaniu problemu.
+Autor zdecydował się na przechowywanie danych w postaci kwadratowej macierzy sąsiedztwa o rozmiarze równym ilości wierzchołków.
+I do jej reprezentacji została wykorzystana pojedyncza tablica typów int64\_t o rozmiarze $N^{2}$, gdzie N to rozmiar problemu.
+Poniżej znajduje się definicja klasy MSTMatrix która implementuje przechowywanie macierzy sąsiedztwa.
+
+\lstinputlisting[caption=Struktura danych MSTMatrix,language=C++]
+{mst.hpp}
+
+Jeden drobny szczegół pozostaje nie wyjaśniony - typ Edge, który klasa MSTMatrix przyjmuje jako argument przy metodzie dodawania krawędzi do grafu.
+Jej implementacja jest prosta i sprowadza się do przetrzymywania informacji numeru wierzchołka źródłowego i docelowego, oraz wagi opisywanego połączenia.
+Metoda MSTMatrix::add korzysta z jej pól, aby odpowiednio wypełnić informacje we własnej macierzy sąsiedztwa.
+Rozwiązanie problemu będzie zwracane jako typ Path ktory jest lekkim wrapperem na klase std::vector z standardowej biblioteki.
+Jego implementacja znajduje sie poniżej.
+
+\lstinputlisting[caption=Struktura danych Path,language=C++]
+{path.hpp}
+
+Został jeszcze jeden element który wymaga krótkiego wyjaśnienia. Jest to funkcja kosztu scieżki która zwraca koszt danej scieżki na podstawie argumentu w postaci macierzy sąsiedztwa
+oraz sekwencji kolejno odwiedzanych wierzchołków.
+
+\section{Metoda rozwiązania problemu}
+
+\subsection{Przegląd zupełny}
+Metoda przeglądu zupełnego jest trywialna w koncepcji. Polega ona na przejściu przez wszystkie możliwe sposoby przebycia ścieżki w trakcie zapisując tą o dotychczasowo najniższym koszcie.
+Tak, aby można było później ją odczytać. Z definicji problem wymaga odwiedzenia każdego wierzchołka dokładnie jeden raz, więc kolejnymi sposobami na przejscie przez graf są zwyczajnie
+permutacje zbioru wierzchołków. Wystarczy zatem wygenerować każdą permutację i sprawdzić która jest najbardziej opłacalna. To oznacza, że wystarczy każdą permutację wysłać do funkcji
+kosztu. Generowanie permutacji zostaje rozwiązane za pomocą własnej implementacji metody wykorzystanej w standardowej bibliotece pod nazwą std::next\_permutation, która jako argument 
+przyjmuje posortowany kontener i generuje jego kolejną permutację w kolejności rosnącej zwracając false przy wygenerowaniu kompletnie posortowanego kontenera (stan początkowy).
+Implementacja funkcji realizującej przegląd zupełny znajduje się poniżej.
+\lstinputlisting[caption=Kod metody przeglądu zupełnego,language=C++]
+{bt.cc}
+
+\subsection{Metoda podziału i ograniczeń}
+Tytułowa metoda polega na przechodzeniu po grafie jak po strukturze drzewiastej. W tym przypadku autor zastosował algorytm DFS (depth first search) w wersji rekurencyjnej.
+Algorytm polega na wybraniu dowolnego wierzchołka i potraktowania go jako korzenia drzewa i explorowania drzewa najgłębiej jak się da i dopiero gdy spotykamy koniec drzewa wrócić do
+rozważenia ścieżek wcześniej pominiętych. W trakcie przemirzeania drzewa należy sumować aktualny koszt przy każdym wykonanym kroku. I jeżeli w trakcie przechodzenia zdarzy się tak, że
+aktualny koszt drogi jest w danym momencie większy od ostatniego wyniku składającego się z pełnej ścieżki, wówczas kontynuowanie przeglądu aktualnej ścieżki jest pozbawione sensu,
+gdyż droga wraz z podróżowaniem nie może stać się krótsza. W takim przypadku należy wrócić do przeglądania pominiętych scieżek. Do wykonania opisanego przeszukiwania autor
+zdecydował się zastosować tablicę wartości true / false aby oznaczać już odwiedzone wierzchołki.
+Poniżej znajduje się rekurencyjna implementacja wspomnianaego algorytmu.
+\lstinputlisting[caption=Kod metody podziału i ograniczeń,language=C++]
+{dfs.cc}
+
+\subsection{Metoda programowania dynamicznego}
+
+Metoda programowania dynamicznego polega na takim rozwiązywaniu problemu aby po drodzę rozwiązywać podproblemy których wyniki można później wykorzystać aby przyspieszyć obliczenia
+kolejnych etapów algorytmu, W tym przypadku autor skorzystał z algorytmu Helda-Karpa, który do rozwiązania poruszanego problemu korzysta z zależności problemu komiwojażera, że
+\textit{Każda podścieżka scieżki bedącej optymalnym rozwiązaniem jest optymalnym rozwiązaniem}, co można zparafrazować jako właściwośc, że znajdując optymalną scieżkę dla części
+węzłów mamy gwarancje, że jest ona częścią pełnej (składającej się ze wszystkich wierzchołków) optymalnej scieżki, która jest rozwiązaniem poruszanego problemu.
+Wadą tego podejścia do problemu jest to, że wyniki podścieżek muszą cały czas być w pamięci na wypadek gdyby były potrzebne jako podścieżki do kolejnego rozwiązania, a mnogość
+takich podrozwiązań powodują duże zużycie pamięci, które cechuje się złożonością ${2^N*N}$. Autor postanowił przechowywać wyniki podproblemów w postaci tablicy, właśnie
+${2^N}$ na N. Tablica przechowuje wyniki dla każdego podzbioru problemu, który reprezentowany jest maską bitową złożoną z N bitów (dla każdego wierzchołka jeden bit), gdzie bit o wartości
+true oznacza, że wierzchołek wchodzi w skład zbioru a wartość false, odwrotnie.
+Dodatkowo dla każdego takiego zbioru wyznaczany jest jego wierzchołek końcowy (stąd kolejnych N możliwości zakończenia).
+Poniżej znajduje się implementacja algorytmu.
+
+\lstinputlisting[caption=Kod metody programowania dynamicznego,language=C++]
+{hk.cc}
+
+Powyższy listing zawiera definicję dwóch kluczowych funkcji. Jedną z nich jest hk\_solve która jest głowną funkcją rozwiązującą rozważany problem.
+hk\_solve wylicza koszty dla każdego podzbioru pełnej scieżki dla każdego jej możliwego zakończenia i zapisuje jej wynik, który wykorzystywany jest w kolejnych iteracjach algorytmu,
+przy obliczaniu bardziej licznych zbiorów. Gdy funkcja ta zakończy działanie w tablicy mamy już zapisane optymalne rozwiązania dla każdego podzbioru kończoncego sie w każdym z punktów.
+Kolejnym krokiem jest odtworzenie z tych danych optymalnej scieżki dla całego grafu. W tym celu wykorzystana jest funkcja hk\_find\_optimal\_path.
+Wspomniana funkcja przechodzi niejako od tyłu, z gotowej scieżki dobiera najbardziej opłacalne zakończenia i wybiera je jako ostateczny wynik. Po przjściu przez wszystkie poziomy
+drzewa otrzymujemy optymalną scieżkę którą możemy zwrócić jako wynik.
+
+\section{Eksperymenty obliczeniowe}
+
+Obliczenia zastały wykonane na komputerze klasy PC z procesorem i7-6700K, kartą graficzną NVIDIA GeForce GTX 1080 SeaHawk, 16GB RAM i DYSK SSD. Jako miarę jakości algorytmu przyjęto średnie procentowe odchylenie (Percentage Relative Deviation, PRD) najlepszego otrzymanego rozwiązania $\pi$ względem rozwiązania referencyjnego $\pi^{ref}$:
+
+\begin{equation}
+PRD(\pi)=100\%(C_{max}(\pi)-C_{max}(\pi^{ref}))/C_{max}(\pi^{ref})
+\end{equation}
+Wszystkie wyniki zebrano i przedstawiono w tabeli nr \ref{tab:result} gdzie:
+\begin{itemize}
+\item $n$ - liczba zadań,
+\item $PRD_{sortR}(\%)$ - średnie procentowe odchylenie dla algorytmu sortR,
+\item $t_{sortR}(s)$ - czas dla algorytmu sortR,
+\item itp.
+\end{itemize}
+\begin{table}[h!]
+\centering
+	\caption{Czas obliczeń oraz PRD dla ustalonej liczby iteracji.}
+	\label{tab:result}
+	{\begin{tabular}{cccccc}
+		\hline
+		$n$ &$optimum$&$PRD_{sortR}(\%)$ & $PRD_{2opt}(\%)$& $t_{sortR}(s)$& $t_{2opt}(s)$ \\
+		\hline
+        6   & & 4.9 & 4.9& 0.0049 & 0.0049 \\
+		10  & & 6.5 & 6.7& 0.0105 & 0.0105 \\
+		20  & & 6.1 & 6.4& 0.0207 & 0.0207 \\
+		50  & & 4.8 & 4.4& 0.0750 & 0.0750 \\
+		100 & & 6.9 & 6.4& 0.1543 & 0.1543 \\
+		200 & & 7.6 & 7.1& 0.3136 & 0.3136 \\
+		500 & & 2.5 & 1.7& 0.5902 & 0.5902 \\
+		\hline
+		\bf{Średnio}& & \bf{0.2225}& \bf{0.2225}& \bf{-5.54}& \bf{-4.34} \\
+		\hline
+	\end{tabular}}
+	\end{table}
+    \begin{figure}[h]
+\centering
+\begin{tikzpicture}
+	\begin{axis}[
+		xlabel=Wielkość problemu,
+		ylabel=Czas,
+        ymajorgrids=true,grid style=dashed,
+        legend pos=north west,
+        xmin=6,
+        xmax=100
+        ]
+        \addplot[color=red,mark=*]
+coordinates {
+(6,35.65)
+(10,35.72)
+(20,35.89)
+(30,36.09)
+(40,36.37)
+(50,36.69)
+(60,37.04)
+(70,37.46)
+(80,37.93)
+(90,38.47)
+(100,38.99)
+};
+
+\addplot[color=blue,mark=square]
+coordinates {
+(6,23.1)
+(10,27.5)
+(20,32)
+(30,37.8)
+(40,44.6)
+(60,61.8)
+(80,83.8)
+(100,114)
+};
+\legend{2opt,sortR}
+	\end{axis}    
+\end{tikzpicture}
+\caption{Czas wykonywania się algorytmów w zależności od wielkości problemu}
+\end{figure}
+\section{Wnioski}
+Fusce euismod cursus orci. Praesent nunc eros, fringilla id sodales sit amet, gravida eget orci. Mauris molestie erat sit amet sem porttitor, et feugiat leo viverra. Mauris placerat vitae nisi eget lacinia. Nulla lorem lectus, imperdiet dapibus viverra vitae, maximus id lectus. Nulla quam nunc, hendrerit ac est eu, pretium viverra turpis. Phasellus lobortis scelerisque iaculis. Morbi pulvinar est ante, a sodales libero posuere et. Nullam sit amet viverra nibh. Aenean ipsum justo, efficitur ac erat id, hendrerit facilisis odio. Fusce a sapien sit amet lorem scelerisque elementum non at neque.
+
+Nullam vestibulum tempus urna ut laoreet. Praesent in placerat purus. Phasellus et faucibus erat. Praesent iaculis a mi rutrum efficitur. Nulla nisi ex, eleifend ornare feugiat eu, ornare et libero. Nulla eget condimentum ex. Ut neque tortor, posuere in accumsan vel, sagittis vel nibh. Cras convallis augue diam, eu ornare erat rutrum vel. Aenean tempus felis eget urna venenatis faucibus.
+\bibliographystyle{abbrv}
+\bibliography{ref}
+\end{document}
+
