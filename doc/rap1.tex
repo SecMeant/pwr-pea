@@ -150,8 +150,6 @@ drzewa otrzymujemy optymalną scieżkę którą możemy zwrócić jako wynik.
 
 \section{Eksperymenty obliczeniowe}
 
-Obliczenia zastały wykonane na komputerze klasy PC z procesorem i7-6700K, kartą graficzną NVIDIA GeForce GTX 1080 SeaHawk, 16GB RAM i DYSK SSD. Jako miarę jakości algorytmu przyjęto średnie procentowe odchylenie (Percentage Relative Deviation, PRD) najlepszego otrzymanego rozwiązania $\pi$ względem rozwiązania referencyjnego $\pi^{ref}$:
-
 \begin{equation}
 PRD(\pi)=100\%(C_{max}(\pi)-C_{max}(\pi^{ref}))/C_{max}(\pi^{ref})
 \end{equation}
@@ -170,7 +168,7 @@ Wszystkie wyniki zebrano i przedstawiono w tabeli nr \ref{tab:result} gdzie:
 		\hline
 		$n$ &$optimum$&$PRD_{sortR}(\%)$ & $PRD_{2opt}(\%)$& $t_{sortR}(s)$& $t_{2opt}(s)$ \\
 		\hline
-        6   & & 4.9 & 4.9& 0.0049 & 0.0049 \\
+		6   & & 4.9 & 4.9& 0.0049 & 0.0049 \\
 		10  & & 6.5 & 6.7& 0.0105 & 0.0105 \\
 		20  & & 6.1 & 6.4& 0.0207 & 0.0207 \\
 		50  & & 4.8 & 4.4& 0.0750 & 0.0750 \\
@@ -188,39 +186,66 @@ Wszystkie wyniki zebrano i przedstawiono w tabeli nr \ref{tab:result} gdzie:
 	\begin{axis}[
 		xlabel=Wielkość problemu,
 		ylabel=Czas,
-        ymajorgrids=true,grid style=dashed,
-        legend pos=north west,
-        xmin=6,
-        xmax=100
-        ]
-        \addplot[color=red,mark=*]
-coordinates {
-(6,35.65)
-(10,35.72)
-(20,35.89)
-(30,36.09)
-(40,36.37)
-(50,36.69)
-(60,37.04)
-(70,37.46)
-(80,37.93)
-(90,38.47)
-(100,38.99)
-};
+		ymajorgrids=true,grid style=dashed,
+		legend pos=north east,
+		xmin=6,
+		xmax=20
+	]
+	\addplot[color=red,mark=*]
+	coordinates {
+		(2,205)
+		(3,854)
+		(4,2780)
+		(5,3429)
+		(6,8669)
+		(7,22836)
+		(8,51377)
+		(9,117697)
+		(10,288131)
+		(11,651784)
+		(12,1481028)
+		(13,3447888)
+		(14,7751161)
+		(15,17600188)
+		(16,41210060)
+		(17,94666222)
+		(18,230991845)
+	};
 
-\addplot[color=blue,mark=square]
-coordinates {
-(6,23.1)
-(10,27.5)
-(20,32)
-(30,37.8)
-(40,44.6)
-(60,61.8)
-(80,83.8)
-(100,114)
-};
-\legend{2opt,sortR}
-	\end{axis}    
+	\addplot[color=blue,mark=square]
+	coordinates {
+		(2,328)
+		(3,691)
+		(4,3026)
+		(5,17928)
+		(6,80026)
+		(7,442466)
+		(8,3953679)
+		(9,39880219)
+		(10,442507917)
+		(11,5353492295)
+	};
+
+	\addplot[color=green,mark=*]
+	coordinates {
+		(2,225)
+		(3,699)
+		(4,1469)
+		(5,6033)
+		(6,21570)
+		(7,84161)
+		(8,179542)
+		(9,730287)
+		(10,2420364)
+		(11,5190784)
+		(12,92879242)
+		(13,546526194)
+		(14,1036336434)
+	};
+
+\legend{Held-Karp, Brute Force, DFS}
+
+\end{axis}
 \end{tikzpicture}
 \caption{Czas wykonywania się algorytmów w zależności od wielkości problemu}
 \end{figure}
