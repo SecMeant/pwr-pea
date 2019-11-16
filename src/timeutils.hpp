@@ -20,8 +20,17 @@ namespace pea {
   std::chrono::nanoseconds
   measure_nano(Function &&f, Args &&... args)
   {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(
-      measure(std::forward<Function>(f), std::forward<Args>(args)...));
+    using namespace std::chrono_literals;
+
+    constexpr auto tries = 50;
+    auto total_time = 0ns;
+
+    for (auto i = 0; i < tries; ++i) {
+      total_time += std::chrono::duration_cast<std::chrono::nanoseconds>(
+        measure(std::forward<Function>(f), std::forward<Args>(args)...));
+    }
+
+    return total_time / tries;
   }
 
   template<typename DataStructure, typename Operation, typename... Args>
