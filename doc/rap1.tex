@@ -8,6 +8,8 @@
 \usepackage{pgfplots}
 \usepackage{anysize}
 \usepackage{pgfgantt}
+\usepackage{tabularx}
+\usepackage{float}
 \usepackage{latexsym,amsmath}
 \marginsize{2.5cm}{2.5cm}{3cm}{3cm}
 
@@ -138,7 +140,7 @@ true oznacza, że wierzchołek wchodzi w skład zbioru a wartość false, odwrot
 Dodatkowo dla każdego takiego zbioru wyznaczany jest jego wierzchołek końcowy (stąd kolejnych N możliwości zakończenia).
 Poniżej znajduje się implementacja algorytmu.
 
-\lstinputlisting[caption=Kod metody programowania dynamicznego,language=C++]
+\lstinputlisting[caption=kod metody programowania dynamicznego,language=c++]
 {hk.cc}
 
 Powyższy listing zawiera definicję dwóch kluczowych funkcji. Jedną z nich jest hk\_solve która jest głowną funkcją rozwiązującą rozważany problem.
@@ -149,39 +151,137 @@ Wspomniana funkcja przechodzi niejako od tyłu, z gotowej scieżki dobiera najba
 drzewa otrzymujemy optymalną scieżkę którą możemy zwrócić jako wynik.
 
 \section{Eksperymenty obliczeniowe}
+Czas wykonywanych operacji był mierzony na systemie opisanym w wprowadzeniu.
+Do pomiaru czasu wykorzystano standardową bibliotekę języka C++, biblioteke std::chrono.
+Pomiar czasu wykonywany był w nanosekundach. Każdy pomiar wykonywany był 50 razy i ostatecznym wynikiem była średnia czasu z wszystkich prób.
+Dodatkowo przed dokonywaniem takiego pomiaru uruchamiano 10 razy przebieg mierzonego kawałka kodu bez mierzenia jego czasu po to aby wytrenować układy przewidywania odwoływań do pamięci,
+tj. branch prediction, cache prefetching.
+Poniżej znajduje się kod realizujący mierzenie czasu.
 
-\begin{equation}
-PRD(\pi)=100\%(C_{max}(\pi)-C_{max}(\pi^{ref}))/C_{max}(\pi^{ref})
-\end{equation}
-Wszystkie wyniki zebrano i przedstawiono w tabeli nr \ref{tab:result} gdzie:
-\begin{itemize}
-\item $n$ - liczba zadań,
-\item $PRD_{sortR}(\%)$ - średnie procentowe odchylenie dla algorytmu sortR,
-\item $t_{sortR}(s)$ - czas dla algorytmu sortR,
-\item itp.
-\end{itemize}
-\begin{table}[h!]
-\centering
-	\caption{Czas obliczeń oraz PRD dla ustalonej liczby iteracji.}
-	\label{tab:result}
-	{\begin{tabular}{cccccc}
-		\hline
-		$n$ &$optimum$&$PRD_{sortR}(\%)$ & $PRD_{2opt}(\%)$& $t_{sortR}(s)$& $t_{2opt}(s)$ \\
-		\hline
-		6   & & 4.9 & 4.9& 0.0049 & 0.0049 \\
-		10  & & 6.5 & 6.7& 0.0105 & 0.0105 \\
-		20  & & 6.1 & 6.4& 0.0207 & 0.0207 \\
-		50  & & 4.8 & 4.4& 0.0750 & 0.0750 \\
-		100 & & 6.9 & 6.4& 0.1543 & 0.1543 \\
-		200 & & 7.6 & 7.1& 0.3136 & 0.3136 \\
-		500 & & 2.5 & 1.7& 0.5902 & 0.5902 \\
-		\hline
-		\bf{Średnio}& & \bf{0.2225}& \bf{0.2225}& \bf{-5.54}& \bf{-4.34} \\
-		\hline
-	\end{tabular}}
-	\end{table}
-    \begin{figure}[h]
-\centering
+\lstinputlisting[caption=kod metody programowania dynamicznego,language=c++]
+{timeutils.hpp}
+
+\pagebreak
+\begin{center}
+\begin{tabularx}{0.5\textwidth} { 
+	| >{\centering\arraybackslash}X 
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{2}{|c|}{Metoda przeglądu zupełnego} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) \\
+	\hline
+	2 & 328 \\
+	\hline
+	3 & 691 \\
+	\hline
+	4 & 3026 \\
+	\hline
+	5 & 17928 \\
+	\hline
+	6 & 80026 \\
+	\hline
+	7 & 442466 \\
+	\hline
+	8 & 3953679 \\
+	\hline
+	9 & 39880219 \\
+	\hline
+	10 & 442507917 \\
+	\hline
+	11 & 5353492295 \\
+	\hline
+\end{tabularx}
+
+\bigskip
+
+\begin{tabularx}{0.5\textwidth} { 
+	| >{\centering\arraybackslash}X 
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{2}{|c|}{Metoda przeszukiwanuia w głąb} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) \\
+	\hline
+	2 & 225 \\
+	\hline
+	3 & 699 \\
+	\hline
+	4 & 1469 \\
+	\hline
+	5 & 6033 \\
+	\hline
+	6 & 21570 \\
+	\hline
+	7 & 84161 \\
+	\hline
+	8 & 179542 \\
+	\hline
+	9 & 730287 \\
+	\hline
+	10 & 2420364 \\
+	\hline
+	11 & 5190784 \\
+	\hline
+	12 & 92879242 \\
+	\hline
+	13 & 546526194 \\
+	\hline
+	14 & 103633643 \\
+	\hline
+\end{tabularx}
+
+\bigskip
+
+\begin{tabularx}{0.5\textwidth} { 
+	| >{\centering\arraybackslash}X 
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{2}{|c|}{Metoda dynamiczna Helda-Karpa} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) \\
+	\hline
+	2 & 205 \\
+	\hline
+	3 & 854 \\
+	\hline
+	4 & 2780 \\
+	\hline
+	5 & 3429 \\
+	\hline
+	6 & 8669 \\
+	\hline
+	7 & 22836 \\
+	\hline
+	8 & 51377 \\
+	\hline
+	9 & 117697 \\
+	\hline
+	10 & 288131 \\
+	\hline
+	11 & 651784 \\
+	\hline
+	12 & 1481028 \\
+	\hline
+	13 & 3447888 \\
+	\hline
+	14 & 7751161 \\
+	\hline
+	15 & 17600188 \\
+	\hline
+	16 & 41210060 \\
+	\hline
+	17 & 94666222 \\
+	\hline
+	18 & 230991845 \\
+	\hline
+\end{tabularx}
+\end{center}
+
+\newpage
+
+\begin{figure}[H]
+\begin{center}
 \begin{tikzpicture}
 	\begin{axis}[
 		xlabel=Wielkość problemu,
@@ -189,7 +289,7 @@ Wszystkie wyniki zebrano i przedstawiono w tabeli nr \ref{tab:result} gdzie:
 		ymajorgrids=true,grid style=dashed,
 		legend pos=north east,
 		xmin=6,
-		xmax=20
+		xmax=22
 	]
 	\addplot[color=red,mark=*]
 	coordinates {
@@ -210,6 +310,8 @@ Wszystkie wyniki zebrano i przedstawiono w tabeli nr \ref{tab:result} gdzie:
 		(16,41210060)
 		(17,94666222)
 		(18,230991845)
+		(19,1353198041)
+		(21,2475404238)
 	};
 
 	\addplot[color=blue,mark=square]
@@ -241,6 +343,7 @@ Wszystkie wyniki zebrano i przedstawiono w tabeli nr \ref{tab:result} gdzie:
 		(12,92879242)
 		(13,546526194)
 		(14,1036336434)
+		(16, 270100653)
 	};
 
 \legend{Held-Karp, Brute Force, DFS}
@@ -248,11 +351,72 @@ Wszystkie wyniki zebrano i przedstawiono w tabeli nr \ref{tab:result} gdzie:
 \end{axis}
 \end{tikzpicture}
 \caption{Czas wykonywania się algorytmów w zależności od wielkości problemu}
-\end{figure}
-\section{Wnioski}
-Fusce euismod cursus orci. Praesent nunc eros, fringilla id sodales sit amet, gravida eget orci. Mauris molestie erat sit amet sem porttitor, et feugiat leo viverra. Mauris placerat vitae nisi eget lacinia. Nulla lorem lectus, imperdiet dapibus viverra vitae, maximus id lectus. Nulla quam nunc, hendrerit ac est eu, pretium viverra turpis. Phasellus lobortis scelerisque iaculis. Morbi pulvinar est ante, a sodales libero posuere et. Nullam sit amet viverra nibh. Aenean ipsum justo, efficitur ac erat id, hendrerit facilisis odio. Fusce a sapien sit amet lorem scelerisque elementum non at neque.
+\end{center}
 
-Nullam vestibulum tempus urna ut laoreet. Praesent in placerat purus. Phasellus et faucibus erat. Praesent iaculis a mi rutrum efficitur. Nulla nisi ex, eleifend ornare feugiat eu, ornare et libero. Nulla eget condimentum ex. Ut neque tortor, posuere in accumsan vel, sagittis vel nibh. Cras convallis augue diam, eu ornare erat rutrum vel. Aenean tempus felis eget urna venenatis faucibus.
+\begin{center}
+\begin{tikzpicture}
+	\begin{axis}[
+		xlabel=Wielkość problemu,
+		ylabel=Czas,
+		ymajorgrids=true,grid style=dashed,
+		legend pos=north west,
+		xmin=6,
+		xmax=22
+	]
+	\addplot[color=red,mark=*]
+	coordinates {
+		(2,205)
+		(3,854)
+		(4,2780)
+		(5,3429)
+		(6,8669)
+		(7,22836)
+		(8,51377)
+		(9,117697)
+		(10,288131)
+		(11,651784)
+		(12,1481028)
+		(13,3447888)
+		(14,7751161)
+		(15,17600188)
+		(16,41210060)
+		(17,94666222)
+		(18,230991845)
+		(19,753198041)
+		(20,1372398544)
+		(21,2475404238)
+	};
+
+\legend{Held-Karp}
+
+\end{axis}
+\end{tikzpicture}
+\caption{Czas wykonywania się algorytmów w zależności od wielkości problemu}
+\end{center}
+\end{figure}
+
+\newpage
+
+\section{Wnioski}
+\hspace{\parindent}
+\par
+Algorytm przeglądu zupełnego okazał się być (jak oczekiwano) najmniej efektywnym sposobem rozwiązania problemu. Biorąc pod uwage implementacje generowania permutacji nie jest też
+metoda najprostszą do zaimplementowania z tych prezentowanych. Algorytm polega na porównaniu każdej możliwej scieżki wiec jego złożoność to n!, gdyż jest to równoważne z wygenerowaniem
+każdej możliwej permutacji zbioru wierzchołków. Metoda jest zwyczajnie nie praktyczna. \\
+
+\par
+Algorytm przeglądania drzewa w głąb okazał się być najprostszy do zaimplementowania. Dla każdego nie odwiedzonego jeszcze sąsiada wywołujemy rekurencyjnie procedure.
+Dzięki wprowadzeniu dodatkowego sprawdzania aktualnego kosztu drogi możemy wcześniej stwierdzić już na danym etapie, że dane rozwiązanie nie może dać lepszego rezultatu niż najlepszy
+dotychas znany, wówczas możemy "odciąć" to rozwiązanie i przejść do sąsiedniego rozgałęzienia. Ta metoda jednak nie daje dużo lepszych rezultatów czasowych. Jest co prawda nieco szybsza,
+a tempo wzrostu w praktyce okazuje się dużo bardziej "gładkie", ale nadal nie daje zadowalających rezultatów. Dodatkowo dla różnych danych dostajemy kompletnie różne złożoności, które
+wydają się nie być opisywalne żadną uniwersalną złożonością. Wynika to z tego, że sytuacje w których faktycznie "odcinamy" nie opłacalne rozgałęzienia mogą pojawiać się bardzo późno
+w trakcie przeszukiwania co prowadzi do tego, że i tak algorytm bedzie musiał przejść przez większość drzewa. \\
+
+\par
+Algorytm programowania dynamicznego Helda-Karpa cechuje sie złożonością czasową O($2^nn^2$).
+Jego wadą jest jednak duża złożoność pamięciowa ze względu na alokacje dużej tablicy do zapisywania wyników dla podzbiorów wierzchołków, która wynosi O($2^nn$).
+Właśnie przez swoją złożoność pamięciową oraz (nadal) długi czas wykonania algorytm nie przydaje sie w praktycznych rozwiązaniach.
+
 \bibliographystyle{abbrv}
 \bibliography{ref}
 \end{document}
