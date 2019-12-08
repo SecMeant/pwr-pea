@@ -164,9 +164,7 @@ namespace pea {
     void
     swap(index_t v1_idx, index_t v2_idx) noexcept
     {
-      this->swapper(this->optimal_path.it_at(v1_idx), this->optimal_path.it_at(v2_idx));
       this->swapper(this->current_path.it_at(v1_idx), this->current_path.it_at(v2_idx));
-      this->cost = pea::cost(this->matrix, this->optimal_path);
     }
 
     void display() const noexcept
@@ -177,30 +175,45 @@ namespace pea {
       fmt::print("Cost: {}\n", this->cost);
     }
 
+    struct swap_candidate
+    {
+      index_t v1,v2;
+      cost_t cost;
+    };
+
     Path solve() noexcept
     {
       if (solved)
         return this->optimal_path;
 
-      auto asdf = 10'000'0;
+      auto asdf = 10'000;
       this->reset();
       this->list.reset();
               this->display();
       do
       {
+        swap_candidate best_swap;
+        best_swap.cost = cost_inf;
+
         for (index_t i = 0; i < this->matrix.size(); i++) {
           for (index_t j = i; j < this->matrix.size(); j++) {
 
             auto new_cost = this->try_swap(i,j);
 
-            if (new_cost.amor_cost < this->cost) {
-              fmt::print("Swap beneficial\n");
-              this->display();
-              this->swap(i,j);
-              this->list.add_tabu(i,j);
+            if (new_cost.amor_cost < best_swap.cost) {
+              best_swap = {i, j, new_cost.cost};
             }
 
           }
+        }
+
+        this->swap(best_swap.v1, best_swap.v2);
+        this->list.add_tabu(best_swap.v1, best_swap.v2);
+
+        if (best_swap.cost < this->cost) {
+          this->swapper(this->optimal_path.it_at(best_swap.v1),
+                        this->optimal_path.it_at(best_swap.v2));
+          this->cost = pea::cost(this->matrix, this->optimal_path);
         }
 
         this->list.cycle();
