@@ -103,6 +103,18 @@ namespace pea {
       return this->m_data;
     }
 
+    auto
+    begin() const noexcept
+    {
+      return this->m_data;
+    }
+
+    auto
+    end() const noexcept
+    {
+      return this->m_data + this->m_size;
+    }
+
     Edge
     nearest_neighbour(value_type node) const noexcept
     {

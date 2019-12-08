@@ -40,6 +40,14 @@ namespace pea {
       }
     };
 
+    tabu_list() = delete;
+
+    tabu_list(size_t size)
+    : list(size)
+    {
+      std::fill(this->list.begin(), this->list.end(), 0);
+    }
+
     using list_t = std::vector<entry_t>;
 
     void
@@ -61,7 +69,7 @@ namespace pea {
     display() const noexcept;
 
   private:
-    list_t list;
+    MSTMatrix list;
   };
 
 
@@ -82,6 +90,7 @@ namespace pea {
     template<typename MatrixType>
     inline tabu(MatrixType &&m)
       : matrix(std::forward<MatrixType>(m))
+      , list(matrix.size())
     {}
 
     tabu(const tabu &t) = default;
@@ -189,10 +198,9 @@ namespace pea {
       auto asdf = 10'000;
       this->reset();
       this->list.reset();
-              this->display();
       do
       {
-        swap_candidate best_swap;
+        swap_candidate best_swap {};
         best_swap.cost = cost_inf;
 
         for (index_t i = 0; i < this->matrix.size(); i++) {
