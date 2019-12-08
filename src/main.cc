@@ -14,7 +14,7 @@ main(int argc, char **argv)
   auto matrix = MSTMatrix::buildFromFile(argv[1]);
   matrix.display();
 
-  tabu<pea::swap_op> t(std::move(matrix));
+  tabu<pea::invert_op> t(std::move(matrix));
   auto p = t.solve();
   auto cost = t.get_cost();
   fmt::print("Cost: {}\n", cost);

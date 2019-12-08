@@ -106,6 +106,11 @@ namespace pea {
     void
     reset()
     {
+      this->current_path = Path::generate_simple(this->matrix.size());
+      this->optimal_path = Path::generate_simple(this->matrix.size());
+      this->cost = pea::cost(this->matrix, this->optimal_path);
+      return;
+
       if (this->matrix.size() <= 2)
         return;
 
@@ -169,6 +174,7 @@ namespace pea {
       this->current_path.display();
       this->optimal_path.display();
       this->list.display();
+      fmt::print("Cost: {}\n", this->cost);
     }
 
     Path solve() noexcept
@@ -179,6 +185,7 @@ namespace pea {
       auto asdf = 10'000'0;
       this->reset();
       this->list.reset();
+              this->display();
       do
       {
         for (index_t i = 0; i < this->matrix.size(); i++) {
