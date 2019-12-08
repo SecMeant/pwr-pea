@@ -1,5 +1,6 @@
 #pragma once
 #include <limits>
+#include <numeric>
 
 #include "mst.hpp"
 #include "typealias.hpp"
@@ -26,6 +27,19 @@ namespace pea {
       std::vector<point_type> v(node_count);
       std::iota(v.begin(), v.end(), 0);
       return v;
+    }
+
+    void
+    display() const noexcept
+    {
+      for (auto &p : *this)
+        fmt::print("{} -> ", p);
+      fmt::print("\n");
+    }
+
+    iterator it_at(size_type idx)
+    {
+      return this->begin() + idx;
     }
   };
 

@@ -1,9 +1,5 @@
-#include "bt.hpp"
-#include "dfs.hpp"
-#include "hk.hpp"
-#include "mst.hpp"
-#include "path.hpp"
-#include "timeutils.hpp"
+#include "ts.hpp"
+#include "ts_util.hpp"
 
 #include <fmt/format.h>
 
@@ -18,18 +14,9 @@ main(int argc, char **argv)
   auto matrix = MSTMatrix::buildFromFile(argv[1]);
   matrix.display();
 
-  auto p = hksolve(matrix);
-
-  for (auto &pp : p)
-    fmt::print("{} -> ", pp);
-  fmt::print("\nCost {}\n", cost(matrix, p));
-
-  return 0;
-
-  tspdfs solver(matrix);
-  solver.solve();
-
-  for (auto &pp : solver.result())
-    fmt::print("{} -> ", pp);
-      fmt::print("\n Cost {}\n", cost(matrix, solver.result()));
+  tabu<pea::swap_op> t(std::move(matrix));
+  auto p = t.solve();
+  auto cost = t.get_cost();
+  fmt::print("Cost: {}\n", cost);
+  p.display();
 }

@@ -2,13 +2,16 @@
 #include <cassert>
 #include <cstdint>
 #include <initializer_list>
-#include <numeric>
+#include <limits>
 #include <vector>
+
+#include <fmt/format.h>
 
 namespace pea {
   struct Edge
   {
-    typedef int32_t base_type;
+    // TODO make v1 and v2 be unsigned type
+    typedef int64_t base_type;
 
     base_type v1;
     base_type v2;
@@ -48,15 +51,17 @@ namespace pea {
 
   class MSTMatrix
   {
-  private:
-    int64_t *m_data;
-    size_t m_size;
-
   public:
+    using value_type = int64_t;
+    using iterator = value_type *;
+    using const_iterator = const value_type *;
+
+    using index_type = size_t;
+
     MSTMatrix() noexcept
       : MSTMatrix(0)
     {}
-    MSTMatrix(int32_t size) noexcept;
+    MSTMatrix(int64_t size) noexcept;
     MSTMatrix(MSTMatrix &&mm) noexcept;
     ~MSTMatrix();
 
@@ -66,15 +71,18 @@ namespace pea {
     void
     add(Edge edge) noexcept;
 
-    int32_t
-    get(size_t x, size_t y) const noexcept;
+    value_type
+    get(index_type x, index_type y) const noexcept;
+
+    value_type
+    safe_get(index_type x, index_type y) const noexcept;
 
     void
-    set(size_t x, size_t y, int64_t val);
+    set(index_type x, index_type y, int64_t val);
 
     // Clears and resizes matrix
     void
-    resize(size_t newsize) noexcept;
+    resize(index_type newsize) noexcept;
 
     void
     display() const noexcept;
@@ -94,6 +102,40 @@ namespace pea {
     {
       return this->m_data;
     }
+
+    Edge
+    nearest_neighbour(value_type node) const noexcept
+    {
+      auto pred = []([[maybe_unused]] index_type _){return true;};
+      return this->nearest_neighbour_if(node, pred);
+    }
+
+    template<typename PredicateType>
+    Edge
+    nearest_neighbour_if(value_type node, PredicateType &&predicate) const noexcept
+    {
+      // TODO change nearest to be type of index_type
+      value_type nearest = -1;
+      value_type nearest_cost = std::numeric_limits<value_type>::max();
+
+      for (index_type i = 0; i < this->m_size; ++i) {
+
+        auto cost = this->get(node, i);
+
+        if (cost < nearest_cost && predicate(i)) {
+          nearest = i;
+          nearest_cost = cost;
+        }
+
+      }
+
+      return  {node, nearest, nearest_cost};
+    }
+
+  private:
+    value_type *m_data;
+    index_type m_size;
+
   };
 
 }; // namespace pea

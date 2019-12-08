@@ -4,12 +4,13 @@
 #include <fstream>
 #include <random>
 #include <string>
+#include <limits>
 
 #include "debug_print.h"
 
 namespace pea {
 
-  MSTMatrix::MSTMatrix(int32_t size) noexcept
+  MSTMatrix::MSTMatrix(int64_t size) noexcept
   {
     this->m_data =
       new std::remove_pointer<decltype(this->m_data)>::type[size * size];
@@ -41,8 +42,8 @@ namespace pea {
     this->set(edge.v2, edge.v1, edge.weight);
   }
 
-  int32_t
-  MSTMatrix::get(size_t x, size_t y) const noexcept
+  MSTMatrix::value_type
+  MSTMatrix::get(index_type x, index_type y) const noexcept
   {
     assert(x < this->m_size);
     assert(y < this->m_size);
@@ -51,7 +52,7 @@ namespace pea {
   }
 
   void
-  MSTMatrix::set(size_t x, size_t y, int64_t val)
+  MSTMatrix::set(index_type x, index_type y, int64_t val)
   {
     assert(x < this->m_size);
     assert(y < this->m_size);
@@ -60,7 +61,7 @@ namespace pea {
   }
 
   void
-  MSTMatrix::resize(size_t newsize) noexcept
+  MSTMatrix::resize(index_type newsize) noexcept
   {
     delete[] this->m_data;
     this->m_data = new int64_t[newsize * newsize]();
@@ -71,20 +72,21 @@ namespace pea {
   MSTMatrix::display() const noexcept
   {
     fmt::print("{:<5}", " ");
-    for (size_t x = 0; x < this->m_size; ++x) {
+    for (index_type x = 0; x < this->m_size; ++x) {
       fmt::print("{:<3} ", x);
     }
     putchar('\n');
 
-    for (size_t x = 0; x < this->m_size + 1; ++x) {
+    for (index_type x = 0; x < this->m_size + 1; ++x) {
       fmt::print("----");
     }
     putchar('\n');
 
-    for (size_t y = 0; y < this->m_size; ++y) {
+    for (index_type y = 0; y < this->m_size; ++y) {
       fmt::print("{:<2} | ", y);
-      for (size_t x = 0; x < this->m_size; ++x) {
-        fmt::print("{:<3} ", this->get(x, y));
+      for (index_type x = 0; x < this->m_size; ++x) {
+        auto val = x == y ? -1 : this->get(x, y);
+        fmt::print("{:<3} ", val);
       }
       putchar('\n');
     }
@@ -106,18 +108,21 @@ namespace pea {
     is >> data_name;
     CHECK_STREAM(is);
 
-    size_t node_count;
+    index_type node_count;
     is >> node_count;
     CHECK_STREAM(is);
 
     MSTMatrix matrix(node_count);
 
-    for (size_t y = 0; y < node_count; ++y) {
-      for (size_t x = 0; x < node_count; ++x) {
+    for (index_type y = 0; y < node_count; ++y) {
+      for (index_type x = 0; x < node_count; ++x) {
 
         int64_t weight;
         is >> weight;
         CHECK_STREAM(is);
+
+        if (weight == -1)
+          weight = std::numeric_limits<decltype(weight)>::max();
 
         matrix.set(x, y, weight);
       }
