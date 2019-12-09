@@ -1,7 +1,8 @@
-#include "ts.hpp"
-#include "ts_util.hpp"
+#include "sa.hpp"
 
 #include <fmt/format.h>
+#include <cstdlib>
+#include <ctime>
 
 using namespace pea;
 
@@ -11,10 +12,12 @@ main(int argc, char **argv)
   if (argc != 2)
     return 1;
 
+  srand(time(0));
+
   auto matrix = MSTMatrix::buildFromFile(argv[1]);
   matrix.display();
 
-  tabu<pea::invert_op> t(std::move(matrix));
+  simann<SwapProcType::swap, TempProcType::standard> t(std::move(matrix));
   auto p = t.solve();
   auto cost = t.get_cost();
   fmt::print("Cost: {}\n", cost);

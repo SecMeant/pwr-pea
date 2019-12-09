@@ -148,21 +148,6 @@ namespace pea {
       this->cost = pea::cost(this->matrix, this->optimal_path);
     }
 
-    inline value_t
-    wrap_matrix_get_(index_t v1, index_t v2) const noexcept FORCE_INLINE
-    {
-      value_t cost;
-      if (v1 >= this->matrix.size() || v1 < 0)
-        cost = 0;
-
-      if (v2 >= this->matrix.size() || v2 < 0)
-       cost = 0;
-
-      cost = this->matrix.get(v1, v2);
-      return cost;
-    }
-
-
     try_swap_res
     try_swap(index_t v1_idx, index_t v2_idx) noexcept
     {
@@ -195,7 +180,7 @@ namespace pea {
       if (solved)
         return this->optimal_path;
 
-      auto asdf = 10'000;
+      auto cycle_count = 10'000;
       this->reset();
       this->list.reset();
       do
@@ -204,13 +189,12 @@ namespace pea {
         best_swap.cost = cost_inf;
 
         for (index_t i = 0; i < this->matrix.size(); i++) {
-          for (index_t j = i; j < this->matrix.size(); j++) {
+          for (index_t j = i+1; j < this->matrix.size(); j++) {
 
             auto new_cost = this->try_swap(i,j);
 
-            if (new_cost.amor_cost < best_swap.cost) {
+            if (new_cost.amor_cost < best_swap.cost)
               best_swap = {i, j, new_cost.cost};
-            }
 
           }
         }
@@ -222,11 +206,11 @@ namespace pea {
           this->swapper(this->optimal_path.it_at(best_swap.v1),
                         this->optimal_path.it_at(best_swap.v2));
           this->cost = pea::cost(this->matrix, this->optimal_path);
-        }
+        } 
 
         this->list.cycle();
-        asdf--;
-      }while(asdf >= 0);
+        cycle_count--;
+      }while(cycle_count >= 0);
 
       solved = true;
       return this->optimal_path;

@@ -2,6 +2,8 @@
 #include <limits>
 #include <numeric>
 
+#include <cstdlib>
+
 #include "mst.hpp"
 #include "typealias.hpp"
 
@@ -26,6 +28,15 @@ namespace pea {
     {
       std::vector<point_type> v(node_count);
       std::iota(v.begin(), v.end(), 0);
+      return v;
+    }
+
+    static Path
+    generate_random(size_t node_count) noexcept
+    {
+      std::vector<point_type> v = generate_simple(node_count);
+      for (auto i = 0u; i < node_count; ++i)
+        std::swap(v[rand()%node_count], v[rand()%node_count]);
       return v;
     }
 
