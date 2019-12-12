@@ -2,6 +2,7 @@
 
 #include "mst.hpp"
 #include "path.hpp"
+#include "tsp_params.hpp"
 #include "utils.hpp"
 
 namespace pea {
@@ -20,17 +21,19 @@ namespace pea {
     geometric
   };
 
-  template<SwapProcType sproc, TempProcType tproc>
+  template<SwapProcType sproc, TempProcType tproc, init_strat_e InitStrat>
   class simulated_annealing
   {
   public:
+    static constexpr auto init_strat = InitStrat;
+
     using index_t = MSTMatrix::index_type;
     using value_t = MSTMatrix::value_type;
 
     static constexpr MSTMatrix::index_type start_node = 0;
-    static constexpr size_t initial_temperature = 20000;
-    static constexpr size_t end_temperature = 1;
-    static constexpr size_t cooling_rate = 5;
+    static constexpr float initial_temperature = 300;
+    static constexpr float end_temperature = 0;
+    static constexpr float cooling_rate = 0.2;
 
     template<typename MatrixType>
     inline simulated_annealing(MatrixType &&m)
@@ -42,39 +45,48 @@ namespace pea {
     void
     reset()
     {
-      this->current_path = Path::generate_simple(this->matrix.size());
-      this->optimal_path = Path::generate_simple(this->matrix.size());
-      this->cost = pea::cost(this->matrix, this->optimal_path);
-      return;
-
       if (this->matrix.size() <= 2)
         return;
 
       solved = false;
 
-      // Build MST
-      this->current_path.clear();
-      this->current_path.push_back(start_node);
-      this->cost = 0;
-      while (this->current_path.size() < this->matrix.size()) {
+      if constexpr (init_strat == init_strat_e::trivial) {
 
-        // Look for neightbour that is the cheapest and not yet in the path
-        auto pred = [this](MSTMatrix::index_type idx) -> bool {
-          auto f = std::find(
-            this->current_path.begin(), this->current_path.end(), idx);
-          return f == this->current_path.end();
-        };
+        this->current_path = Path::generate_simple(this->matrix.size());
+        this->optimal_path = this->current_path;
+        this->cost = pea::cost(this->matrix, this->optimal_path);
 
-        auto next_node =
-          matrix.nearest_neighbour_if(current_path.back(), pred);
+      } else if constexpr (init_strat == init_strat_e::nearest_neighbour) {
 
-        assert(next_node.v2 != -1);
+        // Build MST
+        this->current_path.clear();
+        this->current_path.push_back(start_node);
+        this->cost = 0;
+        while (this->current_path.size() < this->matrix.size()) {
 
-        this->current_path.push_back(next_node.v2);
+          // Look for neightbour that is the cheapest
+          // and not yet in the path
+          auto pred = [this](MSTMatrix::index_type idx) -> bool {
+            auto f = std::find(
+              this->current_path.begin(), this->current_path.end(), idx);
+            return f == this->current_path.end();
+          };
+
+          auto next_node =
+            matrix.nearest_neighbour_if(current_path.back(), pred);
+
+          assert(next_node.v2 != -1);
+
+          this->current_path.push_back(next_node.v2);
+        }
+
+        this->optimal_path = this->current_path;
+        this->cost = pea::cost(this->matrix, this->optimal_path);
+      } else if constexpr (init_strat == init_strat_e::random) {
+        this->current_path = Path::generate_random(this->matrix.size());
+        this->optimal_path = this->current_path;
+        this->cost = pea::cost(this->matrix, this->optimal_path);
       }
-
-      this->optimal_path = this->current_path;
-      this->cost = pea::cost(this->matrix, this->optimal_path);
     }
 
     cost_t
@@ -150,22 +162,25 @@ namespace pea {
     }
 
     inline static double
-    calc_prob(double temperature, double newcost, double oldcost) noexcept FORCE_INLINE
+    calc_prob(double temperature,
+              double newcost,
+              double oldcost) noexcept FORCE_INLINE
     {
-      return 1 - std::exp((-newcost - oldcost)/temperature);
+      return std::exp(-(newcost - oldcost) / temperature);
     }
 
     inline static bool
-    temp_swap(double temperature, double newcost, double oldcost) noexcept FORCE_INLINE
+    temp_swap(double temperature,
+              double newcost,
+              double oldcost) noexcept FORCE_INLINE
     {
       auto p = static_cast<double>(rand() % 100) / 100.0;
-      auto prob = calc_prob(temperature, newcost, oldcost); 
-      fmt::print("{}\n", prob);
+      auto prob = calc_prob(temperature, newcost, oldcost);
       return p < prob;
     }
 
     inline static void
-    regulate_temperature(size_t &temp, size_t time) noexcept FORCE_INLINE
+    regulate_temperature(float &temp, size_t time) noexcept FORCE_INLINE
     {
       if constexpr (tproc == TempProcType::standard) {
 
@@ -173,12 +188,22 @@ namespace pea {
 
       } else if constexpr (tproc == TempProcType::log) {
 
-        temp = initial_temperature / std::log(time + 1.01);
+        auto temp_copy = temp;
+        temp = initial_temperature / std::log(time+1);
+        if (temp == temp_copy)
+          temp = end_temperature;
 
       } else if constexpr (tproc == TempProcType::geometric) {
 
         temp = initial_temperature * std::pow(cooling_rate, time);
       }
+    }
+
+    size_t
+    random_index(size_t begin_range, size_t end_range)
+    {
+      auto range = end_range - begin_range;
+      return (rand() % range) + begin_range;
     }
 
     struct swap_candidate
@@ -193,40 +218,39 @@ namespace pea {
       if (solved)
         return this->optimal_path;
 
+      const auto max_index = this->matrix.size() - 1;
       auto temperature = initial_temperature;
       auto current_cost = cost_inf;
       auto time = 0;
+      auto qwer = 0;
       this->reset();
       do {
-        swap_candidate best_swap{};
-        best_swap.cost = cost_inf;
+        auto i = random_index(0, max_index);
+        auto j = random_index(0, max_index);
 
-        for (index_t i = 0; i < this->matrix.size(); i++) {
-          for (index_t j = i + 1; j < this->matrix.size(); j++) {
+        auto newcost = this->try_swap(i, j);
+        auto force_swap = temp_swap(temperature, newcost, current_cost);
 
-            auto new_cost = this->try_swap(i, j);
+        qwer++;
+        //fmt::print("{}\n", qwer);
 
-            if (new_cost < best_swap.cost)
-              best_swap = { i, j, new_cost };
-          }
+        if (newcost < current_cost || force_swap) {
+          //fmt::print("New best cost: {} < {}\n", newcost, current_cost);
+          this->swap(i, j);
+          current_cost = pea::cost(this->matrix, this->current_path);
         }
 
-        auto newcost = best_swap.cost;
-
-        if (newcost < current_cost || temp_swap(temperature, newcost, current_cost)) {
-          this->swap(best_swap.v1, best_swap.v2);
-          current_cost = best_swap.cost;
-
-          if (current_cost < this->cost) {
-            this->optimal_path = this->current_path;
-            this->cost = current_cost;
-          }
+        if (current_cost < this->cost) {
+          this->optimal_path = this->current_path;
+          this->cost = current_cost;
+          qwer = 0;
+          //fmt::print("better\n", qwer);
         }
 
         regulate_temperature(temperature, time);
         ++time;
 
-      } while (temperature >= end_temperature);
+      } while (temperature > end_temperature);
 
       solved = true;
       return this->optimal_path;
@@ -248,7 +272,7 @@ namespace pea {
     bool solved = false;
   };
 
-  template<SwapProcType sproc, TempProcType tproc>
-  using simann = simulated_annealing<sproc, tproc>;
+  template<SwapProcType sproc, TempProcType tproc, init_strat_e initstrat>
+  using simann = simulated_annealing<sproc, tproc, initstrat>;
 
 } // namespace pea
