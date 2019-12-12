@@ -192,6 +192,8 @@ namespace pea {
       if (solved)
         return this->optimal_path;
 
+      auto no_swap_cycles = 0;
+      constexpr auto no_swap_breakdown = 500;
       auto cycle_count = 100'000;
       this->reset();
       this->list.reset();
@@ -212,14 +214,21 @@ namespace pea {
         this->swap(best_swap.v1, best_swap.v2);
         this->list.add_tabu(best_swap.v1, best_swap.v2);
 
+        ++no_swap_cycles;
+
         if (best_swap.cost < this->cost) {
-          this->swapper(this->optimal_path.it_at(best_swap.v1),
-                        this->optimal_path.it_at(best_swap.v2));
+          this->optimal_path = this->current_path;
           this->cost = pea::cost(this->matrix, this->optimal_path);
+          no_swap_cycles = 0;
         }
 
         this->list.cycle();
         cycle_count--;
+
+        if (no_swap_cycles == no_swap_breakdown) {
+          no_swap_cycles = 0;
+          this->current_path = Path::generate_random(this->matrix.size());
+        }
       } while (cycle_count >= 0);
 
       solved = true;

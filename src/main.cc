@@ -18,7 +18,7 @@ main(int argc, char **argv)
   auto matrix = MSTMatrix::buildFromFile(argv[1]);
   matrix.display();
 
-  tabu_solver<invert_op, init_strat_e::trivial> t(std::move(matrix));
+  tabu_solver<swap_op, init_strat_e::trivial> t(std::move(matrix));
   //simann<SwapProcType::swap, TempProcType::standard> t(std::move(matrix));
   auto p = t.solve();
   auto cost = t.get_cost();
