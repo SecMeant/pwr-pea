@@ -3,6 +3,7 @@
 
 #include "mst.hpp"
 #include "path.hpp"
+#include "tsp_params.hpp"
 #include "utils.hpp"
 
 #include "debug_print.h"
@@ -43,7 +44,7 @@ namespace pea {
     tabu_list() = delete;
 
     tabu_list(size_t size)
-    : list(size)
+      : list(size)
     {
       std::fill(this->list.begin(), this->list.end(), 0);
     }
@@ -72,14 +73,14 @@ namespace pea {
     MSTMatrix list;
   };
 
-
-  template<typename SwapProcType>
-  class tabu
-    : private SwapProcType
+  template<typename SwapProcType, init_strat_e InitStrat>
+  class tabu : private SwapProcType
   {
   public:
     using index_t = MSTMatrix::index_type;
     using value_t = MSTMatrix::value_type;
+
+    static constexpr auto init_strat = InitStrat;
 
     static constexpr MSTMatrix::index_type start_node = 0;
 
@@ -115,37 +116,45 @@ namespace pea {
     void
     reset()
     {
-      this->current_path = Path::generate_simple(this->matrix.size());
-      this->optimal_path = Path::generate_simple(this->matrix.size());
-      this->cost = pea::cost(this->matrix, this->optimal_path);
-      return;
-
       if (this->matrix.size() <= 2)
         return;
 
       solved = false;
 
-      // Build MST
-      this->current_path.clear();
-      this->current_path.push_back(start_node);
-      this->cost = 0;
-      while (this->current_path.size() < this->matrix.size()) {
+      if constexpr (init_strat == init_strat_e::trivial) {
 
-        // Look for neightbour that is the cheapest and not yet in the path
-        auto pred = [this](MSTMatrix::index_type idx) -> bool {
-          auto f = std::find(this->current_path.begin(), this->current_path.end(), idx);
-          return f == this->current_path.end();
-        };
+        this->current_path = Path::generate_simple(this->matrix.size());
+        this->optimal_path = Path::generate_simple(this->matrix.size());
+        this->cost = pea::cost(this->matrix, this->optimal_path);
 
-        auto next_node = matrix.nearest_neighbour_if(current_path.back(), pred);
+      } else if constexpr (init_strat == init_strat_e::nearest_neighbour) {
 
-        assert(next_node.v2 != -1);
+        // Build MST
+        this->current_path.clear();
+        this->current_path.push_back(start_node);
+        this->cost = 0;
+        while (this->current_path.size() < this->matrix.size()) {
 
-        this->current_path.push_back(next_node.v2);
+          // Look for neightbour that is the cheapest
+          // and not yet in the path
+          auto pred = [this](MSTMatrix::index_type idx) -> bool {
+            auto f = std::find(
+                this->current_path.begin(), this->current_path.end(), idx);
+            return f == this->current_path.end();
+          };
+
+          auto next_node =
+            matrix.nearest_neighbour_if(current_path.back(), pred);
+
+          assert(next_node.v2 != -1);
+
+          this->current_path.push_back(next_node.v2);
+        }
+
+        this->optimal_path = this->current_path;
+        this->cost = pea::cost(this->matrix, this->optimal_path);
       }
 
-      this->optimal_path = this->current_path;
-      this->cost = pea::cost(this->matrix, this->optimal_path);
     }
 
     try_swap_res
@@ -158,10 +167,12 @@ namespace pea {
     void
     swap(index_t v1_idx, index_t v2_idx) noexcept
     {
-      this->swapper(this->current_path.it_at(v1_idx), this->current_path.it_at(v2_idx));
+      this->swapper(this->current_path.it_at(v1_idx),
+                    this->current_path.it_at(v2_idx));
     }
 
-    void display() const noexcept
+    void
+    display() const noexcept
     {
       this->current_path.display();
       this->optimal_path.display();
@@ -171,31 +182,30 @@ namespace pea {
 
     struct swap_candidate
     {
-      index_t v1,v2;
+      index_t v1, v2;
       cost_t cost;
     };
 
-    Path solve() noexcept
+    Path
+    solve() noexcept
     {
       if (solved)
         return this->optimal_path;
 
-      auto cycle_count = 10'000;
+      auto cycle_count = 100'000;
       this->reset();
       this->list.reset();
-      do
-      {
-        swap_candidate best_swap {};
+      do {
+        swap_candidate best_swap{};
         best_swap.cost = cost_inf;
 
         for (index_t i = 0; i < this->matrix.size(); i++) {
-          for (index_t j = i+1; j < this->matrix.size(); j++) {
+          for (index_t j = i + 1; j < this->matrix.size(); j++) {
 
-            auto new_cost = this->try_swap(i,j);
+            auto new_cost = this->try_swap(i, j);
 
             if (new_cost.amor_cost < best_swap.cost)
-              best_swap = {i, j, new_cost.cost};
-
+              best_swap = { i, j, new_cost.cost };
           }
         }
 
@@ -206,18 +216,21 @@ namespace pea {
           this->swapper(this->optimal_path.it_at(best_swap.v1),
                         this->optimal_path.it_at(best_swap.v2));
           this->cost = pea::cost(this->matrix, this->optimal_path);
-        } 
+        }
 
         this->list.cycle();
         cycle_count--;
-      }while(cycle_count >= 0);
+      } while (cycle_count >= 0);
 
       solved = true;
       return this->optimal_path;
     }
 
-    auto get_cost()
-    {return this->cost;}
+    auto
+    get_cost()
+    {
+      return this->cost;
+    }
 
     friend SwapProcType;
 
@@ -230,4 +243,8 @@ namespace pea {
     SwapProcType swapper;
     bool solved = false;
   };
+
+  template<template<init_strat_e> class SwapProcType, init_strat_e InitStrat>
+  using tabu_solver = tabu<SwapProcType<InitStrat>, InitStrat>;
+
 } // namespace pea

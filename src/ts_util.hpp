@@ -7,9 +7,10 @@
 #include "ts.hpp"
 
 namespace pea {
+  template <init_strat_e strat>
   struct swap_op
   {
-    using parent_t = tabu<swap_op>;
+    using parent_t = tabu<swap_op, strat>;
 
     void
     operator()(Path::iterator a, Path::iterator b)
@@ -34,19 +35,22 @@ namespace pea {
     {
       auto parent = container_of(this, parent_t, swapper);
       try_swap_res res;
+      auto pen = parent->list.get_tabu(*a, *b);
+      auto max_pen = tabu_list::max_penalty;
 
       this->swap(a,b);
       res.cost = pea::cost(parent->matrix, parent->current_path);
-      res.amor_cost = res.cost;
+      res.amor_cost = res.cost + (res.cost * pen) / max_pen;
       this->swap(a,b);
 
       return res;
     }
   };
 
+  template <init_strat_e strat>
   struct insert_op
   {
-    using parent_t = tabu<insert_op>;
+    using parent_t = tabu<insert_op, strat>;
 
     void
     operator()(Path::iterator a, Path::iterator b)
@@ -106,9 +110,10 @@ namespace pea {
 
   };
 
+  template <init_strat_e strat>
   struct invert_op
   {
-    using parent_t = tabu<invert_op>;
+    using parent_t = tabu<invert_op, strat>;
 
     void
     operator()(Path::iterator a, Path::iterator b)
@@ -142,4 +147,5 @@ namespace pea {
       return res;
     }
   };
+
 } // namespace pea
