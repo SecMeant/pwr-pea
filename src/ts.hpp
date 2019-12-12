@@ -124,7 +124,7 @@ namespace pea {
       if constexpr (init_strat == init_strat_e::trivial) {
 
         this->current_path = Path::generate_simple(this->matrix.size());
-        this->optimal_path = Path::generate_simple(this->matrix.size());
+        this->optimal_path = this->current_path;
         this->cost = pea::cost(this->matrix, this->optimal_path);
 
       } else if constexpr (init_strat == init_strat_e::nearest_neighbour) {
@@ -151,6 +151,10 @@ namespace pea {
           this->current_path.push_back(next_node.v2);
         }
 
+        this->optimal_path = this->current_path;
+        this->cost = pea::cost(this->matrix, this->optimal_path);
+      } else if constexpr (init_strat == init_strat_e::random) {
+        this->current_path = Path::generate_random(this->matrix.size());
         this->optimal_path = this->current_path;
         this->cost = pea::cost(this->matrix, this->optimal_path);
       }

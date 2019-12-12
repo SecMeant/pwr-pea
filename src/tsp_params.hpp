@@ -5,5 +5,6 @@ namespace pea {
   {
     trivial,
     nearest_neighbour,
+    random
   };
 };
