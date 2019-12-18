@@ -73,7 +73,7 @@
 
 \section{Opis problemu}
 
-Problem komiwojażera (ang. travelling salesman problem, TSP) jest zagadnieniem optymalizacyjnym, polegającym na znalezieniu minimalnego cyklu Hamiltona w pełnym grafie ważonym\cite{TSPWiki:1}. Do rozwiązania problemu tym razem autor posłużył się dwoma algorytmami aproksymacyjnymi o których szerzej w dalszej częsci.
+Problem komiwojażera (ang. travelling salesman problem, TSP) jest zagadnieniem optymalizacyjnym, polegającym na znalezieniu minimalnego cyklu Hamiltona w pełnym grafie ważonym. Do rozwiązania problemu tym razem autor posłużył się dwoma algorytmami aproksymacyjnymi o których szerzej w dalszej częsci.
 Do implementacji rozwiązania posłużył język C++, gdyż zdaniem autora pozwala on na wygodne opisywanie wysokopoziomowej abstrakcji oraz dostępne kompilatory
 potrafią generować efektywny kod. Testy przeprowadzane były na systemie Ubuntu Linux 19.10 64bit z kompilatorem clang 9.0 na procesorze Intel i5-3570K (4x3.8GHz) z 8GB RAM.
 
@@ -232,14 +232,21 @@ oraz implementacja głównej pętli algorytmu
 \pagebreak
 \section{Eksperymenty obliczeniowe}
 Czas wykonywanych operacji był mierzony na systemie opisanym w wprowadzeniu.
-Do pomiaru czasu wykorzystano standardową bibliotekę języka C++, biblioteke std::chrono.
+Do pomiaru czasu wykorzystano standardową bibliotekę języka C++, std::chrono.
 Pomiar czasu wykonywany był w nanosekundach. Każdy pomiar wykonywany był 50 razy i ostatecznym wynikiem była średnia czasu z wszystkich prób.
 Dodatkowo przed dokonywaniem takiego pomiaru uruchamiano 10 razy przebieg mierzonego kawałka kodu bez mierzenia jego czasu po to aby wytrenować układy przewidywania odwoływań do pamięci,
 tj. branch prediction, cache prefetching.
+Dodatkowo każdy z algorytmów przed pomiarem został dostrojony (za pomocą paramterów specyficznych dla każdego algorytmu opisanych we wcześniejszych
+paragrafach) tak aby czas jego wykonania nie odbiegał znacznie od innych algorytmów. Konsekwencją tego są czasy wykonania bardzo zbliżone do siebie,
+co jest powodem pominięcia przez autora analizy złożoności czasowej. Omówione natomiast zostały ich rezultaty, tj. porównanie wygenerowanej
+scieżki z najlepszą możliwa dla danego zestawu danych.
 Poniżej znajduje się kod realizujący mierzenie czasu.
 
-\lstinputlisting[caption=kod metody programowania dynamicznego,language=c++]
+\lstinputlisting[caption=Funkcje pomocnicze do liczenia czasu wykonania algorytmów,language=c++]
 {timeutils.hpp}
+
+\par
+Poniżej znajdują się wyniki pomiarów zgromadzone dla różnych wariantów każdego z algorytmów.
 
 \begin{center}
 
@@ -250,7 +257,7 @@ Poniżej znajduje się kod realizujący mierzenie czasu.
 	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{5}{|c|}{tabu swap rnd} \\
+	\multicolumn{5}{|c|}{Przeszukiwania tabu - metada zamiany (swap) - start losowy} \\
 	\hline
 	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
 	\hline
@@ -278,7 +285,7 @@ Poniżej znajduje się kod realizujący mierzenie czasu.
 	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{5}{|c|}{tabu insert rnd} \\
+	\multicolumn{5}{|c|}{Przeszukiwania tabu - metada wstawiania (insert) - start losowy} \\
 	\hline
 	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
 	\hline
@@ -306,7 +313,7 @@ Poniżej znajduje się kod realizujący mierzenie czasu.
 	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{5}{|c|}{tabu invert rnd} \\
+	\multicolumn{5}{|c|}{Przeszukiwania tabu - metada odwrócenia (reverse) - start losowy} \\
 	\hline
 	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
 	\hline
@@ -334,23 +341,23 @@ Poniżej znajduje się kod realizujący mierzenie czasu.
 	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{5}{|c|}{simann std rnd} \\
+	\multicolumn{5}{|c|}{Simulowane wyżarzanie - liniowa regulacja temperatury - start losowy} \\
 	\hline
 	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
 	\hline
-	17 & 6021 & 2427 & 2085 & 342 \\
+	17 & 143268183& 2427 & 2085 & 342 \\
 	\hline
-	21 & 6053 & 3568 & 2707 & 861 \\
+	21 & 145967248& 3568 & 2707 & 861 \\
 	\hline
-	24 & 4388 & 1957 & 1272 & 685 \\
+	24 & 148627322& 1957 & 1272 & 685 \\
 	\hline
-	26 & 4576 & 1551 & 937 & 614 \\
+	26 & 150143893& 1551 & 937 & 614 \\
 	\hline
-	29 & 4670 & 2508 & 1610 & 898 \\
+	29 & 153477613& 2508 & 1610 & 898 \\
 	\hline
-	42 & 5442 & 1897 & 699 & 1198 \\
+	42 & 163647317& 1897 & 699 & 1198 \\
 	\hline
-	58 & 5163 & 57551 & 25395 & 32156 \\
+	58 & 177813088& 57551 & 25395 & 32156 \\
 	\hline
 \end{tabularx}
 \bigskip
@@ -362,23 +369,23 @@ Poniżej znajduje się kod realizujący mierzenie czasu.
 	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{5}{|c|}{simann geo rnd} \\
+	\multicolumn{5}{|c|}{Simulowane wyżarzanie - geometryczna regulacja temperatury - start losowy} \\
 	\hline
 	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
 	\hline
-	17 & 826 & 3124 & 2085 & 1039 \\
+	17 & 150094480 & 2085  & 2085  & 0    \\
 	\hline
-	21 & 732 & 4657 & 2707 & 1950 \\
+	21 & 152922148 & 2757  & 2707  & 50   \\
 	\hline
-	24 & 369 & 2443 & 1272 & 1171 \\
+	24 & 155708966 & 1290  & 1272  & 18   \\
 	\hline
-	26 & 379 & 1827 & 937 & 890 \\
+	26 & 157297797 & 965   & 937   & 28   \\
 	\hline
-	29 & 447 & 3631 & 1610 & 2021 \\
+	29 & 160790359 & 1683  & 1610  & 73   \\
 	\hline
-	42 & 417 & 2185 & 699 & 1486 \\
+	42 & 171444619 & 747   & 699   & 48   \\
 	\hline
-	58 & 473 & 99693 & 25395 & 74298 \\
+	58 & 186285346 & 28461 & 25395 & 3066 \\
 	\hline
 \end{tabularx}
 \bigskip
@@ -390,23 +397,23 @@ Poniżej znajduje się kod realizujący mierzenie czasu.
 	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{5}{|c|}{simann log rnd} \\
+	\multicolumn{5}{|c|}{Simulowane wyżarzanie - logarytmiczna regulacja temperatury - start losowy} \\
 	\hline
 	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
 	\hline
-	17 & 1425930 & 2088 & 2085 & 3 \\
+	17 & 2090093 & 2085 & 2085 & 0 \\
 	\hline
-	21 & 1356183 & 2782 & 2707 & 75 \\
+	21 & 2243627 & 2760 & 2707 & 53 \\
 	\hline
-	24 & 1353915 & 1348 & 1272 & 76 \\
+	24 & 2072114 & 1330 & 1272 & 58 \\
 	\hline
-	26 & 1410848 & 1096 & 937 & 159 \\
+	26 & 2103146 & 1032 & 937 & 95 \\
 	\hline
-	29 & 1411943 & 1737 & 1610 & 127 \\
+	29 & 2152118 & 1730 & 1610 & 120 \\
 	\hline
-	42 & 1642230 & 1123 & 699 & 424 \\
+	42 & 2366575 & 958 & 699 & 259 \\
 	\hline
-	58 & 1733128 & 36077 & 25395 & 10682 \\
+	58 & 2634296 & 27326 & 25395 & 1931 \\
 	\hline
 \end{tabularx}
 \bigskip
@@ -414,147 +421,28 @@ Poniżej znajduje się kod realizujący mierzenie czasu.
 \end{center}
 
 \newpage
-
-\begin{figure}[H]
-\begin{center}
-\begin{tikzpicture}
-	\begin{axis}[
-		xlabel=Wielkość problemu,
-		ylabel=Czas (ns),
-		ymajorgrids=true,grid style=dashed,
-		legend pos=north west,
-		xmin=15,
-		xmax=60
-	]
-	\addplot[color=red,mark=*]
-	coordinates {
-		(17,4678)
-		(21,8122)
-		(24,11574)
-		(26,14488)
-		(29,19540)
-		(42,55657)
-		(58,140286)
-	};
-
-	\addplot[color=blue,mark=square]
-	coordinates {
-		(17,5995)
-		(21,10291)
-		(24,14680)
-		(26,18128)
-		(29,24547)
-		(42,68625)
-		(58,179368)
-	};
-
-	\addplot[color=green,mark=*]
-	coordinates {
-		(17,5845)
-		(21,10172)
-		(24,14409)
-		(26,18196)
-		(29,24296)
-		(42,71766)
-		(58,169531)
-	};
-
-\legend{swap, insert, invert}
-
-\end{axis}
-\end{tikzpicture}
-\caption{Czas wykonywania się algorytmów przeszukiwania tabu}
-\end{center}
-
-\begin{center}
-\begin{tikzpicture}
-	\begin{axis}[
-		xlabel=Wielkość problemu,
-		ylabel=Czas (ns),
-		ymajorgrids=true,grid style=dashed,
-		legend pos=north east,
-		ymax=8000,
-		xmin=15,
-		xmax=60
-	]
-	\addplot[color=red,mark=*]
-	coordinates {
-		(17 , 6021)
-		(21 , 6053)
-		(24 , 4388)
-		(26 , 4576)
-		(29 , 4670)
-		(42 , 5442)
-		(58 , 5163)
-	};
-	\addplot[color=green,mark=*]
-	coordinates {
-		(17 , 826)
-		(21 , 732)
-		(24 , 369)
-		(26 , 379)
-		(29 , 447)
-		(42 , 417)
-		(58 , 473)
-	};
-\legend{standard, geometric}
-
-\end{axis}
-\end{tikzpicture}
-\caption{Czas wykonywania się algorytmów simulowanego wyżarzania}
-\end{center}
-
-\begin{center}
-\begin{tikzpicture}
-	\begin{axis}[
-		xlabel=Wielkość problemu,
-		ylabel=Czas (ns),
-		ymajorgrids=true,grid style=dashed,
-		legend pos=north west,
-		xmin=15,
-		xmax=60
-	]
-	\addplot[color=green,mark=*]
-	coordinates {
-		(17 , 1425930)
-		(21 , 1356183)
-		(24 , 1353915)
-		(26 , 1410848)
-		(29 , 1411943)
-		(42 , 1642230)
-		(58 , 1733128)
-	};
-
-\legend{log}
-
-\end{axis}
-\end{tikzpicture}
-\caption{Czas wykonywania się algorytmów przeszukiwania tabu}
-\end{center}
-
-\end{figure}
 
 \newpage
 
 \section{Wnioski}
 \hspace{\parindent}
-\par
-Algorytm przeglądu zupełnego okazał się być (jak oczekiwano) najmniej efektywnym sposobem rozwiązania problemu. Biorąc pod uwage implementacje generowania permutacji nie jest też
-metoda najprostszą do zaimplementowania z tych prezentowanych. Algorytm polega na porównaniu każdej możliwej scieżki wiec jego złożoność to n!, gdyż jest to równoważne z wygenerowaniem
-każdej możliwej permutacji zbioru wierzchołków. Metoda jest zwyczajnie nie praktyczna. \\
+\par Przedstawione algorytmy w dużej mierze polegają na zdarzeniach losowych (pseudo losowch), jednak mimo to zdaniem autora relatywnie dobrze
+radzą sobie z problemem komiwojarzera, szczególnie zwaracając uwage na prostotę ich implementacji, oraz ich losowy charakter.
+To powiedziawszy autor pragnie zaznaczyć, że po etapie implementacji, nietrywialnym wyzwaniem okazała się kalibracja parametrów z jakimi
+działa algorytm, tak aby wyniki były jak najlepsze, któremu zdecydowanie nie pomagała ich znaczna liczność.
+Dobór tych parametrów bardzo często dawał skrajnie różne rezultaty przy nawet najmniejszych zmianach innych parametrów, a interakcje jakie zachodzą
+między nimi są nie zawsze jasne.
+Dobrane parametry, na których zostały przeprowadzone testy i przedstawione wyniki zdecydowanie nie mogą być uważane za najlepiej dobrane. Warto zaznaczyć
+jednak, że autor przy ich dobieraniu, w celu stworzenia wiarygodnego prównania starał się dokonywać takich manipulacji parametrów, aby ich wyniki były
+jak najlepsze z jednoczesnym zachowaniem porównywalnych czasów wykonania obu algorytmu, dzięki czemu była możliwa ich rzetelna komparacja.
 
-\par
-Algorytm przeglądania drzewa w głąb okazał się być najprostszy do zaimplementowania. Dla każdego nie odwiedzonego jeszcze sąsiada wywołujemy rekurencyjnie procedure.
-Dzięki wprowadzeniu dodatkowego sprawdzania aktualnego kosztu drogi możemy wcześniej stwierdzić już na danym etapie, że dane rozwiązanie nie może dać lepszego rezultatu niż najlepszy
-dotychas znany, wówczas możemy "odciąć" to rozwiązanie i przejść do sąsiedniego rozgałęzienia. Ta metoda jednak nie daje dużo lepszych rezultatów czasowych. Jest co prawda nieco szybsza,
-a tempo wzrostu w praktyce okazuje się dużo bardziej "gładkie", ale nadal nie daje zadowalających rezultatów. Dodatkowo dla różnych danych dostajemy kompletnie różne złożoności, które
-wydają się nie być opisywalne żadną uniwersalną złożonością. Wynika to z tego, że sytuacje w których faktycznie "odcinamy" nie opłacalne rozgałęzienia mogą pojawiać się bardzo późno
-w trakcie przeszukiwania co prowadzi do tego, że i tak algorytm bedzie musiał przejść przez większość drzewa. \\
+\par Z otrzymanych wyników jasno wynika, że algorytm przeszukiwania tabu radzi sobie zdecydowanie lepiej od algorytmu simulowanego wyżarzania jednocześnie
+będac tym, którego kalibracji parametrów dokonywało się zdecydowanie prościej. Warto także zauważyć, że najlepszym z sposobów wytwarzania sąsiedniego stanu
+okazał się być algorytm reverse, czyli odwrócenia kolejności wszystkich wierzchłków z zakresu wyznaczanego przez dwa wierzchołki biorące udział w wywołaniu
+procedury. Symulowane wyżarzanie ze względu na swój silny charakter losowości osiąga dużo słabsze rezultaty, co zgadza się z przewidywaniami autora.
 
-\par
-Algorytm programowania dynamicznego Helda-Karpa cechuje sie złożonością czasową O($2^nn^2$).
-Jego wadą jest jednak duża złożoność pamięciowa ze względu na alokacje dużej tablicy do zapisywania wyników dla podzbiorów wierzchołków, która wynosi O($2^nn$).
-Właśnie przez swoją złożoność pamięciową oraz (nadal) długi czas wykonania algorytm nie przydaje sie w praktycznych rozwiązaniach.
+\par Algorytm poszukiwania tabu oraz symulowanego wyżarzania pozwalają na wymierne oszacowanie optymalnej drogi i zależnie od wymagań może znaleźć
+zastosowanie w praktyce.
 
 \bibliographystyle{abbrv}
 \bibliography{ref}

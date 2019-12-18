@@ -44,8 +44,6 @@ measure_operation_nano(int32_t initial_size,
                       std::forward<Args>(args)...);
 }
 
-// Doing measurements and logs results.
-// passes args to measure_operation_nano.
 template<typename... Args>
 void
 measure_and_log(const char *m_name, const char *f_name, Args &&... args)
