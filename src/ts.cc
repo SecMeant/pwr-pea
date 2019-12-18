@@ -2,33 +2,34 @@
 
 namespace pea {
   void
-  tabu_list::add_tabu(entry_t e) noexcept
-  {
-    this->list.set(e.v1, e.v2, e.penalty);
-  }
-
-  void
   tabu_list::add_tabu(index_t v1, index_t v2) noexcept
   {
-    this->list.set(v1, v2, this->max_penalty);
+    auto penalty = this->current_cycle + this->max_penalty;
+    this->list.set(v1, v2, penalty);
+    this->list.set(v2, v1, penalty);
   }
 
   tabu_list::value_t
   tabu_list::get_tabu(index_t v1, index_t v2) noexcept
   {
-    return this->list.get(v1, v2);
+    auto tabu = this->list.get(v1, v2);
+
+    if (tabu < this->current_cycle)
+      return 0;
+
+    return tabu - this->current_cycle;
   }
 
   void
   tabu_list::cycle() noexcept
   {
-    for (auto &e : this->list)
-      if (e > 0) --e;
+    this->current_cycle++;
   }
 
   void
   tabu_list::reset() noexcept
   {
+    this->current_cycle = 0;
     for (auto &e : this->list)
       e = 0;
   }

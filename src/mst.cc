@@ -73,12 +73,12 @@ namespace pea {
   {
     fmt::print("{:<5}", " ");
     for (index_type x = 0; x < this->m_size; ++x) {
-      fmt::print("{:<3} ", x);
+      fmt::print("{:<4} ", x);
     }
     putchar('\n');
 
     for (index_type x = 0; x < this->m_size + 1; ++x) {
-      fmt::print("----");
+      fmt::print("-----");
     }
     putchar('\n');
 
@@ -86,7 +86,7 @@ namespace pea {
       fmt::print("{:<2} | ", y);
       for (index_type x = 0; x < this->m_size; ++x) {
         auto val = x == y ? -1 : this->get(x, y);
-        fmt::print("{:<3} ", val);
+        fmt::print("{:<4} ", val);
       }
       putchar('\n');
     }

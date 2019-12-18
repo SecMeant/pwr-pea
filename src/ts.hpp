@@ -45,6 +45,7 @@ namespace pea {
 
     tabu_list(size_t size)
       : list(size)
+      , current_cycle(0)
     {
       std::fill(this->list.begin(), this->list.end(), 0);
     }
@@ -71,6 +72,7 @@ namespace pea {
 
   private:
     MSTMatrix list;
+    value_t current_cycle;
   };
 
   template<typename SwapProcType, init_strat_e InitStrat>
