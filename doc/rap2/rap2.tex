@@ -185,6 +185,50 @@ się na listingu "Przeszukiwanie tabu - główna pętla algorytmu".
 {tabu_loop.cc}
 
 \pagebreak
+\section{Metoda symulowanego wyżarzania (ang. simulated annealing)}
+
+Algorytm ten ma podłoże fizyczne i wynika z obserwacji wyżarzania w metarulgii. Implementacja algorytmu jest trywialna, prostsza niż
+przeszukiwania tabu i daje realtywnie dobre wyniki. Przed przedstawieniem implementacji jednak należy wprowadzić pojęcie temperatury,
+oraz jak będzie wpływała ona na przeszukiwanie rozwiązań. Najpierw jednak warto znać myśl przewodnią algorytmu.
+
+\subsection{Zasada działania}
+Metoda, tak jak poprzednik polega na operacjach ruchu, zdefiniowanych tak jak w przeszukiwaniu tabu, dlatego w razie wyjaśnienia
+działania, implementacji ich rekonfiguralności oraz strategii, informację należy czerpać wówczas z wcześniejszych akapitów.
+Algorytm składa się z kilku prostych kroków (które sprzecznie z intuicją autora daję relatywnie dobre rezultaty). Najpierw ustawiane
+są wszystkie parametry na swoje wartości początkowe tj. temperatura, droga początkowa (wyznaczana na trzy sposobie, dokładnie tak samo
+jak w przypadku przeszukiwania tabu) itp. Głownym punktem znów jest pętla wykonywana w ilości dobranej najczęściej empirycznie.
+W pętli wyszukiwane jest losowe wybrany ruch z sąsiedzwa aktualnego rozwiązania i jest oceniany. Aktualizacja aktualnego stanu na ten wylosowany
+następuje, gdy jego koszt jest większy lub zajdzie wymuszona aktualizacja (szerzej omówiona w dalszych akapitach). Dodatkowo zapisywana jest
+globalnie nopotkana najlepsza scieżka i jest ona ostatecznie zwrócona jako wynik gdy algorytm zakończy działanie.
+
+\subsection{Temperatura}
+Temperatura jest zmienną która raz ustawiona na początku algorytmu na ustaloną wartość (często empirycznie, zależnie od implementacji,
+a czasem nawet i od instancji problemu) i w trakcie działania algorytmu, z każdą iteracją zmienia się i wpływa na przebieg algorytmu,
+pod postacią wymuszonych aktualizacji scieżki.
+Zazwyczaj temperatura ustawiana jest na wartość dodatnią i wraz z działaniem algorytmu zmniejszana jest do momentu aż nie osiągnie
+pewnego, ustalonego (znów zależnego od implementacji) pułapu. Strategie ochładzania (zmiejszania temperatury) mogą być różne. Autor tej
+implementacji zdecydował się na trzy strategie. Ochładzanie liniowe, logarytmiczne oraz geometryczne. Sposób ich realizacji został przedstawiony
+na listingu poniżej.
+
+\lstinputlisting[caption=Implementacja ochładzania,language=c++]
+{cooling.cc}
+
+\subsection{Wymuszna aktualizacja}
+Pomimo wylosowania mniej opłacalnej scieżki od aktualnej, możliwa jest jej wymuszona aktualizacja. Zabieg taki ma na celu zapobieganie
+bezproduktywnego błądzenia w minimach lokalnych. W celu arbitrażu wyliczane jest prawdopodobieństwo wykonania właśnie wymuszonej aktualizacji.
+Jeżeli po wylosowaniu decyzju z wyliczonem prawdopodobieństwem otrzymaliśmy wynik pozytywny, dokonujemy aktualizacji aktualnego rozwiązania,
+dokładnie tak samo jak gdyby rozwiązanie było lepsze (tańsze). Pozostaje już tylko jedna nie wyjaśniona kwestia. Jak obliczać poruszane wcześniej
+prawdopodobieństwo. Sposób jego wytworzenia przedstawione zostało na listingu poniżej.
+
+\lstinputlisting[caption=Wyliczanie prawdopodobieństwa wymuszonej aktualizacji,language=c++]
+{sa_prob.cc}
+
+oraz implementacja głównej pętli algorytmu
+
+\lstinputlisting[caption=Symulowane wyżarzanie - główna pętla algorytmu,language=c++]
+{sa_solve.cc}
+
+\pagebreak
 \section{Eksperymenty obliczeniowe}
 Czas wykonywanych operacji był mierzony na systemie opisanym w wprowadzeniu.
 Do pomiaru czasu wykorzystano standardową bibliotekę języka C++, biblioteke std::chrono.
