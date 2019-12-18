@@ -119,6 +119,7 @@ oraz wstawienie jednego z późniejszego w sekwencji z wierzchołków przed wcze
 łatwo konfigurowalne, oraz ich konfiguracja nie wpływa na czas wykonania programu (przekazywane są jako parametr szablonu).
 Dla każdej z nich została przeprowadzona osobna analiza skuteczności. Implementacja każdej z nich znajduje na kolejnych listingach.
 
+\par
 Każda operacja zamiany zaimplementowana jest jako funktor który przekazywany jest do klasy odpowiedzialnej za rozwiązanie problemu.
 Każdy z funktorów potrafi przeprowadzić nie tylko sam ruch, ale również spekulację na temat jego opłacalności. Taka operacja 
 przydatna jest przy szukaniu najlepszego sąsiada bez decydowania się od razu na ruch. Przez to, że ruch operuje już na istniejącej
@@ -240,121 +241,176 @@ Poniżej znajduje się kod realizujący mierzenie czasu.
 \lstinputlisting[caption=kod metody programowania dynamicznego,language=c++]
 {timeutils.hpp}
 
-\pagebreak
 \begin{center}
-\begin{tabularx}{0.5\textwidth} { 
-	| >{\centering\arraybackslash}X 
+
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{2}{|c|}{Metoda przeglądu zupełnego} \\
+	\multicolumn{5}{|c|}{tabu swap rnd} \\
 	\hline
-	Wielkość problemu & Czas wykonania (ns) \\
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
 	\hline
-	2 & 328 \\
+	17 & 4678691 & 2085 & 2085 & 0 \\
 	\hline
-	3 & 691 \\
+	21 & 8122241 & 2707 & 2707 & 0 \\
 	\hline
-	4 & 3026 \\
+	24 & 11574596 & 1298 & 1272 & 26 \\
 	\hline
-	5 & 17928 \\
+	26 & 14488670 & 937 & 937 & 0 \\
 	\hline
-	6 & 80026 \\
+	29 & 19540981 & 1656 & 1610 & 46 \\
 	\hline
-	7 & 442466 \\
+	42 & 55657465 & 777 & 699 & 78 \\
 	\hline
-	8 & 3953679 \\
-	\hline
-	9 & 39880219 \\
-	\hline
-	10 & 442507917 \\
-	\hline
-	11 & 5353492295 \\
+	58 & 140285446 & 30986 & 25395 & 5591 \\
 	\hline
 \end{tabularx}
-
 \bigskip
 
-\begin{tabularx}{0.5\textwidth} { 
-	| >{\centering\arraybackslash}X 
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{2}{|c|}{Metoda przeszukiwanuia w głąb} \\
+	\multicolumn{5}{|c|}{tabu insert rnd} \\
 	\hline
-	Wielkość problemu & Czas wykonania (ns) \\
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
 	\hline
-	2 & 225 \\
+	17 & 5995145 & 3382 & 2085 & 1297 \\
 	\hline
-	3 & 699 \\
+	21 & 10298361 & 4673 & 2707 & 1966 \\
 	\hline
-	4 & 1469 \\
+	24 & 14680920 & 3315 & 1272 & 2043 \\
 	\hline
-	5 & 6033 \\
+	26 & 18122428 & 2426 & 937 & 1489 \\
 	\hline
-	6 & 21570 \\
+	29 & 24541917 & 4855 & 1610 & 3245 \\
 	\hline
-	7 & 84161 \\
+	42 & 68625855 & 2934 & 699 & 2235 \\
 	\hline
-	8 & 179542 \\
-	\hline
-	9 & 730287 \\
-	\hline
-	10 & 2420364 \\
-	\hline
-	11 & 5190784 \\
-	\hline
-	12 & 92879242 \\
-	\hline
-	13 & 546526194 \\
-	\hline
-	14 & 103633643 \\
+	58 & 179318868 & 113213 & 25395 & 87818 \\
 	\hline
 \end{tabularx}
-
 \bigskip
 
-\begin{tabularx}{0.5\textwidth} { 
-	| >{\centering\arraybackslash}X 
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{2}{|c|}{Metoda dynamiczna Helda-Karpa} \\
+	\multicolumn{5}{|c|}{tabu invert rnd} \\
 	\hline
-	Wielkość problemu & Czas wykonania (ns) \\
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
 	\hline
-	2 & 205 \\
+	17 & 5845171 & 2085 & 2085 & 0 \\
 	\hline
-	3 & 854 \\
+	21 & 10171492 & 2707 & 2707 & 0 \\
 	\hline
-	4 & 2780 \\
+	24 & 14407409 & 1272 & 1272 & 0 \\
 	\hline
-	5 & 3429 \\
+	26 & 18198326 & 937 & 937 & 0 \\
 	\hline
-	6 & 8669 \\
+	29 & 24290646 & 1615 & 1610 & 5 \\
 	\hline
-	7 & 22836 \\
+	42 & 71764416 & 699 & 699 & 0 \\
 	\hline
-	8 & 51377 \\
-	\hline
-	9 & 117697 \\
-	\hline
-	10 & 288131 \\
-	\hline
-	11 & 651784 \\
-	\hline
-	12 & 1481028 \\
-	\hline
-	13 & 3447888 \\
-	\hline
-	14 & 7751161 \\
-	\hline
-	15 & 17600188 \\
-	\hline
-	16 & 41210060 \\
-	\hline
-	17 & 94666222 \\
-	\hline
-	18 & 230991845 \\
+	58 & 169588431 & 25395 & 25395 & 0 \\
 	\hline
 \end{tabularx}
+\bigskip
+
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{5}{|c|}{simann std rnd} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	\hline
+	17 & 6021 & 2427 & 2085 & 342 \\
+	\hline
+	21 & 6053 & 3568 & 2707 & 861 \\
+	\hline
+	24 & 4388 & 1957 & 1272 & 685 \\
+	\hline
+	26 & 4576 & 1551 & 937 & 614 \\
+	\hline
+	29 & 4670 & 2508 & 1610 & 898 \\
+	\hline
+	42 & 5442 & 1897 & 699 & 1198 \\
+	\hline
+	58 & 5163 & 57551 & 25395 & 32156 \\
+	\hline
+\end{tabularx}
+\bigskip
+
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{5}{|c|}{simann geo rnd} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	\hline
+	17 & 826 & 3124 & 2085 & 1039 \\
+	\hline
+	21 & 732 & 4657 & 2707 & 1950 \\
+	\hline
+	24 & 369 & 2443 & 1272 & 1171 \\
+	\hline
+	26 & 379 & 1827 & 937 & 890 \\
+	\hline
+	29 & 447 & 3631 & 1610 & 2021 \\
+	\hline
+	42 & 417 & 2185 & 699 & 1486 \\
+	\hline
+	58 & 473 & 99693 & 25395 & 74298 \\
+	\hline
+\end{tabularx}
+\bigskip
+
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{5}{|c|}{simann log rnd} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	\hline
+	17 & 1425930 & 2088 & 2085 & 3 \\
+	\hline
+	21 & 1356183 & 2782 & 2707 & 75 \\
+	\hline
+	24 & 1353915 & 1348 & 1272 & 76 \\
+	\hline
+	26 & 1410848 & 1096 & 937 & 159 \\
+	\hline
+	29 & 1411943 & 1737 & 1610 & 127 \\
+	\hline
+	42 & 1642230 & 1123 & 699 & 424 \\
+	\hline
+	58 & 1733128 & 36077 & 25395 & 10682 \\
+	\hline
+\end{tabularx}
+\bigskip
+
 \end{center}
 
 \newpage
@@ -364,114 +420,118 @@ Poniżej znajduje się kod realizujący mierzenie czasu.
 \begin{tikzpicture}
 	\begin{axis}[
 		xlabel=Wielkość problemu,
-		ylabel=Czas,
+		ylabel=Czas (ns),
 		ymajorgrids=true,grid style=dashed,
-		legend pos=north east,
-		xmin=6,
-		xmax=22
+		legend pos=north west,
+		xmin=15,
+		xmax=60
 	]
 	\addplot[color=red,mark=*]
 	coordinates {
-		(2,205)
-		(3,854)
-		(4,2780)
-		(5,3429)
-		(6,8669)
-		(7,22836)
-		(8,51377)
-		(9,117697)
-		(10,288131)
-		(11,651784)
-		(12,1481028)
-		(13,3447888)
-		(14,7751161)
-		(15,17600188)
-		(16,41210060)
-		(17,94666222)
-		(18,230991845)
-		(19,1353198041)
-		(21,2475404238)
+		(17,4678)
+		(21,8122)
+		(24,11574)
+		(26,14488)
+		(29,19540)
+		(42,55657)
+		(58,140286)
 	};
 
 	\addplot[color=blue,mark=square]
 	coordinates {
-		(2,328)
-		(3,691)
-		(4,3026)
-		(5,17928)
-		(6,80026)
-		(7,442466)
-		(8,3953679)
-		(9,39880219)
-		(10,442507917)
-		(11,5353492295)
+		(17,5995)
+		(21,10291)
+		(24,14680)
+		(26,18128)
+		(29,24547)
+		(42,68625)
+		(58,179368)
 	};
 
 	\addplot[color=green,mark=*]
 	coordinates {
-		(2,225)
-		(3,699)
-		(4,1469)
-		(5,6033)
-		(6,21570)
-		(7,84161)
-		(8,179542)
-		(9,730287)
-		(10,2420364)
-		(11,5190784)
-		(12,92879242)
-		(13,546526194)
-		(14,1036336434)
-		(16, 270100653)
+		(17,5845)
+		(21,10172)
+		(24,14409)
+		(26,18196)
+		(29,24296)
+		(42,71766)
+		(58,169531)
 	};
 
-\legend{Held-Karp, Brute Force, DFS}
+\legend{swap, insert, invert}
 
 \end{axis}
 \end{tikzpicture}
-\caption{Czas wykonywania się algorytmów w zależności od wielkości problemu}
+\caption{Czas wykonywania się algorytmów przeszukiwania tabu}
 \end{center}
 
 \begin{center}
 \begin{tikzpicture}
 	\begin{axis}[
 		xlabel=Wielkość problemu,
-		ylabel=Czas,
+		ylabel=Czas (ns),
 		ymajorgrids=true,grid style=dashed,
-		legend pos=north west,
-		xmin=6,
-		xmax=22
+		legend pos=north east,
+		ymax=8000,
+		xmin=15,
+		xmax=60
 	]
 	\addplot[color=red,mark=*]
 	coordinates {
-		(2,205)
-		(3,854)
-		(4,2780)
-		(5,3429)
-		(6,8669)
-		(7,22836)
-		(8,51377)
-		(9,117697)
-		(10,288131)
-		(11,651784)
-		(12,1481028)
-		(13,3447888)
-		(14,7751161)
-		(15,17600188)
-		(16,41210060)
-		(17,94666222)
-		(18,230991845)
-		(19,753198041)
-		(20,1372398544)
-		(21,2475404238)
+		(17 , 6021)
+		(21 , 6053)
+		(24 , 4388)
+		(26 , 4576)
+		(29 , 4670)
+		(42 , 5442)
+		(58 , 5163)
 	};
-
-\legend{Held-Karp}
+	\addplot[color=green,mark=*]
+	coordinates {
+		(17 , 826)
+		(21 , 732)
+		(24 , 369)
+		(26 , 379)
+		(29 , 447)
+		(42 , 417)
+		(58 , 473)
+	};
+\legend{standard, geometric}
 
 \end{axis}
 \end{tikzpicture}
-\caption{Czas wykonywania się algorytmów w zależności od wielkości problemu}
+\caption{Czas wykonywania się algorytmów simulowanego wyżarzania}
 \end{center}
+
+\begin{center}
+\begin{tikzpicture}
+	\begin{axis}[
+		xlabel=Wielkość problemu,
+		ylabel=Czas (ns),
+		ymajorgrids=true,grid style=dashed,
+		legend pos=north west,
+		xmin=15,
+		xmax=60
+	]
+	\addplot[color=green,mark=*]
+	coordinates {
+		(17 , 1425930)
+		(21 , 1356183)
+		(24 , 1353915)
+		(26 , 1410848)
+		(29 , 1411943)
+		(42 , 1642230)
+		(58 , 1733128)
+	};
+
+\legend{log}
+
+\end{axis}
+\end{tikzpicture}
+\caption{Czas wykonywania się algorytmów przeszukiwania tabu}
+\end{center}
+
 \end{figure}
 
 \newpage
