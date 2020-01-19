@@ -1,7 +1,5 @@
-#include "ts.hpp"
-#include "ts_util.hpp"
-
-#include "sa.hpp"
+#include "genetic.hpp"
+#include "timeutils.hpp"
 
 #include <cstdlib>
 #include <ctime>
@@ -18,13 +16,11 @@ main(int argc, char **argv)
   srand(time(0));
 
   auto matrix = MSTMatrix::buildFromFile(argv[1]);
-  matrix.display();
 
   // tabu_solver<swap_op, init_strat_e::random> t(std::move(matrix));
-  simann<SwapProcType::swap, TempProcType::log, init_strat_e::nearest_neighbour>
+  genetic::solver<genetic::cross_strat::ox, genetic::select_strat::ranking, 35>
     t(std::move(matrix));
   auto p = t.solve();
-  auto cost = t.get_cost();
+  auto cost = p.get_cost();
   fmt::print("Cost: {}\n", cost);
-  p.display();
 }

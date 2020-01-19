@@ -5,6 +5,12 @@
 #define UNLIKELY(x) __builtin_expect((x), 0)
 #define FORCE_INLINE __attribute__((always_inline))
 
+#ifndef NDEBUG
+#define BUGON(x) {if(x) {assert(false);}}
+#else
+#define BUGON(x)
+#endif
+
 template<typename It>
 bool
 next_permutation(It begin, It end)

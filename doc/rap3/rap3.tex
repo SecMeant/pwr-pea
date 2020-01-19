@@ -1,0 +1,357 @@
+\documentclass[polish,polish,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{pslatex}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{anysize}
+\usepackage{pgfgantt}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{latexsym,amsmath}
+\marginsize{2.5cm}{2.5cm}{3cm}{3cm}
+
+
+\newcommand{\name}[1]{\sffamily\bfseries\scriptsize #1}
+
+\newcommand{\frontpage}[8]{
+%% #1 - nazwa kursu
+%% #2 - kierunek 
+%% #3 - termin 
+%% #4 - temat 
+%% #5 - problem
+%% #6 - data
+
+\vspace{2cm}
+
+\begin{tabular}{|p{0.72\textwidth}|p{0.28\textwidth}|}
+\hline
+\multicolumn{2}{|c|}{}\\
+\multicolumn{2}{|c|}{{\LARGE #1}}\\
+\multicolumn{2}{|c|}{}\\
+\hline
+\name{Kierunek} & \name{Termin}\\
+\multicolumn{1}{|c|}{\textit{#2}} & \multicolumn{1}{|c|}{\textit{#3}} \\
+\hline
+\name{Temat} & \name{Problem}\\
+\multicolumn{1}{|c|}{\textit{#4}} & \multicolumn{1}{|c|}{\textit{#5}} \\
+\hline
+\name{Prowadzący} & \name{data}\\
+\multicolumn{1}{|c|}{\textit{mgr inż. Radosław Idzikowski}} & \multicolumn{1}{|c|}{\textit{#6}} \\
+\hline
+\end{tabular}
+
+}
+
+\usepackage{listings}
+\usepackage{xcolor} % for setting colors
+
+
+% set the default code style
+\lstset{ % General setup for the package
+	basicstyle=\small,
+	numbers=left,
+	frame=tb,
+	tabsize=2,
+	columns=fixed,
+	showstringspaces=false,
+	showtabs=false,
+	keepspaces,
+	commentstyle=\color{red},
+	keywordstyle=\color{blue}
+}
+
+\title{Sprawozdanie SPD}
+\begin{document}
+% #1 - nazwa kursu #2 - kierunek  #3 - termin #4 - temat #5 - problem #6 - data
+\frontpage{Projektowanie Efektywnych Algorytmów}{Informatyka}{Czwartek 19:05}{Przeszukiwanie tabu oraz simulowanie wyżarzanie}{TSP}{\today}
+\pagestyle{empty}
+\newpage
+
+\section{Opis problemu}
+
+Problem komiwojażera (ang. travelling salesman problem, TSP) jest zagadnieniem optymalizacyjnym, polegającym na znalezieniu minimalnego cyklu Hamiltona w pełnym grafie ważonym. Do rozwiązania problemu tym razem autor posłużył się dwoma algorytmami aproksymacyjnymi o których szerzej w dalszej częsci.
+Do implementacji rozwiązania posłużył język C++, gdyż zdaniem autora pozwala on na wygodne opisywanie wysokopoziomowej abstrakcji oraz dostępne kompilatory
+potrafią generować efektywny kod. Testy przeprowadzane były na systemie Ubuntu Linux 19.10 64bit z kompilatorem clang 9.0 na procesorze Intel i5-3570K (4x3.8GHz) z 8GB RAM.
+
+\section{Struktury danych - sposób przechowywania informacji}
+
+\subsection{Graf}
+
+Problem komiwojażera można zdefiniować dla różnej ilości wieszchołków, dalej nazywaną wielkością problemu oraz różnych wag poszczególnych dróg łączących te wierzchołki.
+Z tego względu wymaganym mechanizmem wczytywania informacji o problemie będzie plik, który zawiera wielkość grafu oraz wagi poszczególnych wierzchołków.
+Wagi podawane są w postaci macierzy, w której kolejne elementy w wierszu oddzielane są znakami białymi, a same wiersze oddzielane są znakiem nowej lini.
+Tak zapisane dane należy sparsować i zapisać w postaci pozwalającej na jak najprostszy oraz najszybszy sposób odczytu, ponieważ będzie ona intensywnie wykorzystywana przy rozwiązywaniu problemu.
+Autor zdecydował się na przechowywanie danych w postaci kwadratowej macierzy sąsiedztwa o rozmiarze równym ilości wierzchołków.
+I do jej reprezentacji została wykorzystana pojedyncza tablica typów int64\_t o rozmiarze $N^{2}$, gdzie N to rozmiar problemu.
+Poniżej znajduje się definicja klasy MSTMatrix która implementuje przechowywanie macierzy sąsiedztwa.
+
+\lstinputlisting[caption=Struktura danych MSTMatrix,language=C++]
+{mst.hpp}
+
+Jeden drobny szczegół pozostaje nie wyjaśniony - typ Edge, który klasa MSTMatrix przyjmuje jako argument przy metodzie dodawania krawędzi do grafu.
+Jej implementacja jest prosta i sprowadza się do przetrzymywania informacji numeru wierzchołka źródłowego i docelowego, oraz wagi opisywanego połączenia.
+Metoda MSTMatrix::add korzysta z jej pól, aby odpowiednio wypełnić informacje we własnej macierzy sąsiedztwa.
+Rozwiązanie problemu będzie zwracane jako typ Path ktory jest lekkim wrapperem na klase std::vector z standardowej biblioteki.
+Jego implementacja znajduje sie poniżej.
+
+\lstinputlisting[caption=Struktura danych Path,language=C++]
+{path.hpp}
+
+Został jeszcze jeden element który wymaga krótkiego wyjaśnienia. Jest to funkcja kosztu scieżki która zwraca koszt danej scieżki na podstawie argumentu w postaci macierzy sąsiedztwa
+oraz sekwencji kolejno odwiedzanych wierzchołków.
+
+\section{Algorytm genetyczny}
+\par Algorytmy genetyczne polegają na wykorzystują mechanizmy występujące w przyrodzie, a dokładniej próbuje symulować proces ewolucji biologicznej.
+Na potrzeby rozwiązania problemu definiuje się populacje, która w jest zbiorem możliwych rozwiązań problemów ( w tym przypadku jedną z poprawnych ścieżek).
+Na danej populacji przeprowadzamy operacje symulujące jej ewolucję w konsekwencji dochodząc do coraz to lepszych rezultatów. Taki wynik otrzymywany jest
+poprzez zdefiniowanie odpowiednich zasad i mechanizmów zachodzących w czasie tej symulacji. Głownycmi operacjami wykonywanymi w celu symulacji zjawiska
+ewolucji sa:
+
+\par \textbf{Rozmnażanie}
+(krzyżowanie) w którym bierze przypadku bierze udział dwoje rodziców, rozwiązań z poprzedniej generacji. Wynikiem tej operacji jest nowe rozwiązanie,
+które dodane jest do aktualnej póli gatunku.
+
+\par \textbf{Mutacje},
+które polegają na wykonaniu losowych "przekłamań" w rozwiązaniu zaraz po utworzeniu nowego osobnika (rozwiązania).
+Efekt ten zachodzi z zadanych prawdopodobieństem.
+
+\par \textbf{Selekcja},
+polegająca na ocenie przystosowania danego osobnika (tutaj koszt scieżki - im mniejszy koszt tym lepiej przystosowany osobnik)
+
+\subsection{Implementacja - rozmnażanie}
+Rozmnażanie (ang. crossing) zostało zaimplementawane na dwa sposoby. Pierwszym z nich jest PMX Crossover (Partially-mapped crossover).
+
+\par \textbf{PMX Crossover}
+\par Polega on na losowym
+wyborze zakresu rozwiązania jednego z rodziców oraz podstawieniu go w to samo miejsce u dziecka. Reszta elementów w genotypie dziecka powinna zostać 
+wypłeniona elementami drugiego rodzica. Takie wypłenienie jednak może spodowować powtarzające sie wierzchołki i dla tego problemu jest nie dopuszczalne.
+W celu naprawy rozwiązania ( pozbycia sie podwójnie występującuch wierzchołków) wierzchołki pobrane od drugiego z rodziców, jeżeli występują dwuktornie
+powinny zostać dopowiednio zamienione, tak, aby w ich miejscach pojawiły się wierzchołki dotychczas nie znajdujące sie w genotypie dziecka.
+Listing kodu z implementacją znajduje się poniżej.
+
+\pagebreak
+
+\lstinputlisting[caption=Struktura danych Path,language=C++]
+{crossover-pmx.cc}
+
+\pagebreak
+
+\par \textbf{OX Crossover}
+\par Drugim z zastosowanych algorytmów krzyżowania jest OX Crossover, który podobnie jak poprzednik polega na losowym wyborze częsci pierwszego z rodziców,
+oraz przekopiowaniem go do rozwiązania-dziecka. Następnie zaczynając terować w rodzicu drugim od końca przekopiownego obszaru do jego początku
+(w trakcie iteracji jeżeli napotkamy koniec, zaczynamy od samego początku) i kolejno wstawiamy wierzchołki które jescze nie wystąpiły.
+Listing kodu z implementacją znajduje się poniżej.
+
+\lstinputlisting[caption=Struktura danych Path,language=C++]
+{crossover-ox.cc}
+
+
+\pagebreak
+\section{Eksperymenty obliczeniowe}
+Czas wykonywanych operacji był mierzony na systemie opisanym w wprowadzeniu.
+Do pomiaru czasu wykorzystano standardową bibliotekę języka C++, std::chrono.
+Pomiar czasu wykonywany był w nanosekundach. Każdy pomiar wykonywany był 50 razy i ostatecznym wynikiem była średnia czasu z wszystkich prób.
+Dodatkowo przed dokonywaniem takiego pomiaru uruchamiano 10 razy przebieg mierzonego kawałka kodu bez mierzenia jego czasu po to aby wytrenować układy przewidywania odwoływań do pamięci,
+tj. branch prediction, cache prefetching.
+Dodatkowo każdy z algorytmów przed pomiarem został dostrojony (za pomocą paramterów specyficznych dla każdego algorytmu opisanych we wcześniejszych
+paragrafach) tak aby czas jego wykonania nie odbiegał znacznie od innych algorytmów. Konsekwencją tego są czasy wykonania bardzo zbliżone do siebie,
+co jest powodem pominięcia przez autora analizy złożoności czasowej. Omówione natomiast zostały ich rezultaty, tj. porównanie wygenerowanej
+scieżki z najlepszą możliwa dla danego zestawu danych.
+Poniżej znajduje się kod realizujący mierzenie czasu.
+
+\lstinputlisting[caption=Funkcje pomocnicze do liczenia czasu wykonania algorytmów,language=c++]
+{timeutils.hpp}
+
+\par
+Poniżej znajdują się wyniki pomiarów zgromadzone dla różnych wariantów każdego z algorytmów.
+
+\begin{center}
+
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{5}{|c|}{Przeszukiwania tabu - metada zamiany (swap) - start losowy} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	\hline
+	17 & 4678691 & 2085 & 2085 & 0 \\
+	\hline
+	21 & 8122241 & 2707 & 2707 & 0 \\
+	\hline
+	24 & 11574596 & 1298 & 1272 & 26 \\
+	\hline
+	26 & 14488670 & 937 & 937 & 0 \\
+	\hline
+	29 & 19540981 & 1656 & 1610 & 46 \\
+	\hline
+	42 & 55657465 & 777 & 699 & 78 \\
+	\hline
+	58 & 140285446 & 30986 & 25395 & 5591 \\
+	\hline
+\end{tabularx}
+\bigskip
+
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{5}{|c|}{Przeszukiwania tabu - metada wstawiania (insert) - start losowy} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	\hline
+	17 & 5995145 & 3382 & 2085 & 1297 \\
+	\hline
+	21 & 10298361 & 4673 & 2707 & 1966 \\
+	\hline
+	24 & 14680920 & 3315 & 1272 & 2043 \\
+	\hline
+	26 & 18122428 & 2426 & 937 & 1489 \\
+	\hline
+	29 & 24541917 & 4855 & 1610 & 3245 \\
+	\hline
+	42 & 68625855 & 2934 & 699 & 2235 \\
+	\hline
+	58 & 179318868 & 113213 & 25395 & 87818 \\
+	\hline
+\end{tabularx}
+\bigskip
+
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{5}{|c|}{Przeszukiwania tabu - metada odwrócenia (reverse) - start losowy} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	\hline
+	17 & 5845171 & 2085 & 2085 & 0 \\
+	\hline
+	21 & 10171492 & 2707 & 2707 & 0 \\
+	\hline
+	24 & 14407409 & 1272 & 1272 & 0 \\
+	\hline
+	26 & 18198326 & 937 & 937 & 0 \\
+	\hline
+	29 & 24290646 & 1615 & 1610 & 5 \\
+	\hline
+	42 & 71764416 & 699 & 699 & 0 \\
+	\hline
+	58 & 169588431 & 25395 & 25395 & 0 \\
+	\hline
+\end{tabularx}
+\bigskip
+
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{5}{|c|}{Simulowane wyżarzanie - liniowa regulacja temperatury - start losowy} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	\hline
+	17 & 143268183& 2427 & 2085 & 342 \\
+	\hline
+	21 & 145967248& 3568 & 2707 & 861 \\
+	\hline
+	24 & 148627322& 1957 & 1272 & 685 \\
+	\hline
+	26 & 150143893& 1551 & 937 & 614 \\
+	\hline
+	29 & 153477613& 2508 & 1610 & 898 \\
+	\hline
+	42 & 163647317& 1897 & 699 & 1198 \\
+	\hline
+	58 & 177813088& 57551 & 25395 & 32156 \\
+	\hline
+\end{tabularx}
+\bigskip
+
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{5}{|c|}{Simulowane wyżarzanie - geometryczna regulacja temperatury - start losowy} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	\hline
+	17 & 150094480 & 2085  & 2085  & 0    \\
+	\hline
+	21 & 152922148 & 2757  & 2707  & 50   \\
+	\hline
+	24 & 155708966 & 1290  & 1272  & 18   \\
+	\hline
+	26 & 157297797 & 965   & 937   & 28   \\
+	\hline
+	29 & 160790359 & 1683  & 1610  & 73   \\
+	\hline
+	42 & 171444619 & 747   & 699   & 48   \\
+	\hline
+	58 & 186285346 & 28461 & 25395 & 3066 \\
+	\hline
+\end{tabularx}
+\bigskip
+
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{5}{|c|}{Simulowane wyżarzanie - logarytmiczna regulacja temperatury - start losowy} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	\hline
+	17 & 2090093 & 2085 & 2085 & 0 \\
+	\hline
+	21 & 2243627 & 2760 & 2707 & 53 \\
+	\hline
+	24 & 2072114 & 1330 & 1272 & 58 \\
+	\hline
+	26 & 2103146 & 1032 & 937 & 95 \\
+	\hline
+	29 & 2152118 & 1730 & 1610 & 120 \\
+	\hline
+	42 & 2366575 & 958 & 699 & 259 \\
+	\hline
+	58 & 2634296 & 27326 & 25395 & 1931 \\
+	\hline
+\end{tabularx}
+\bigskip
+
+\end{center}
+
+\newpage
+
+\newpage
+
+\section{Wnioski}
+\hspace{\parindent}
+\par Algorytm genetyczny, mimo polegania w dużym stopniu na procesach losowych daje dobre rezultaty. Strategią krzyżowania, która najlepiej sprawdziła
+się w tym przypadku jest OX Crossover w połączeniu z selekcja w trybie rankingowym. Bardzo ważnym elementem algorytmu okazało się wymiana aktualnej
+populacji mimo otrzymywania chilowo gorszych wyników z jednoczesnym zachowaniem częsci najlepszej populacji z generacji poprzedniej. Prostota implementacji
+tego algorytmu oraz jego efektywność zdecydowanie umieszcza go na pozycji algorytmów którego powinny być rozważone przy rozwiązywaniu innych problemów.
+
+\bibliographystyle{abbrv}
+\bibliography{ref}
+\end{document}
+

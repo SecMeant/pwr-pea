@@ -6,6 +6,7 @@
 
 #include "mst.hpp"
 #include "typealias.hpp"
+#include "utils.hpp"
 
 namespace pea {
 
@@ -45,7 +46,23 @@ namespace pea {
     {
       for (auto &p : *this)
         fmt::print("{} -> ", p);
-      fmt::print("\n");
+    }
+
+    bool
+    verify() const noexcept
+    {
+      auto vbuf = std::make_unique<point_type[]>(this->size());
+      std::fill_n(vbuf.get(), this->size(), 0);
+
+      for (auto &e : *this)
+        ++vbuf[e];
+
+      for (auto i = 0ull; i < this->size(); ++i) {
+        if (vbuf[i] != 1)
+          return false;
+      }
+
+      return true;
     }
 
     iterator it_at(size_type idx)
@@ -58,5 +75,90 @@ namespace pea {
 
   cost_t
   cost(const MSTMatrix &matrix, const Path &path) noexcept;
+
+  class ScoredPath : public Path
+  {
+  public:
+    ScoredPath() = default;
+
+    ScoredPath(const ScoredPath &other)
+    : Path(other)
+    , cost(other.cost)
+    , age(other.age)
+    {
+    }
+
+    ScoredPath(ScoredPath &&other)
+    : Path(std::move(other))
+    , cost(other.cost)
+    , age(other.age)
+    {
+    }
+
+    ScoredPath& operator=(const ScoredPath &other)
+    {
+      static_cast<Path&>(*this) = static_cast<const Path&>(other);
+      this->cost = other.cost;
+      this->age = other.age;
+      return *this;
+    }
+
+    ScoredPath& operator=(ScoredPath &&other)
+    {
+      static_cast<Path&>(*this) = static_cast<Path&&>(other);
+      this->cost = other.cost;
+      this->age = other.age;
+      return *this;
+    }
+
+    ScoredPath(Path &&p)
+    : Path(std::move(p))
+    , cost(cost_inf)
+    {
+    }
+
+    cost_t
+    get_cost() const noexcept
+    {
+      return this->cost;
+    }
+
+    void
+    update_cost(const MSTMatrix &matrix) noexcept
+    {
+      this->cost = pea::cost(matrix, *this);
+    }
+
+    bool operator==(const ScoredPath &other)
+    {
+      auto& this_  = static_cast<const Path&>(*this);
+      auto& other_ = static_cast<const Path&>(other);
+      return this_ == other_;
+    }
+
+    void
+    reset_age()
+    {
+      this->age = 0;
+    }
+
+    void
+    increment_age() noexcept
+    {
+      ++this->age;
+    }
+
+    age_t
+    get_age() const noexcept FORCE_INLINE
+    { return this->age; }
+
+    friend cost_t
+    cost(const MSTMatrix &matrix, const ScoredPath &path) noexcept;
+
+  private:
+    ::cost_t cost = 313371337;
+    age_t age = 0;
+  };
+
 
 } // namespace pea

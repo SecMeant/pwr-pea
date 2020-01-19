@@ -14,7 +14,7 @@ namespace pea {
     while (n != end) {
       auto tmp_cost = matrix.get(*f, *n);
 
-      assert(tmp_cost > 0);
+      assert(tmp_cost >= 0);
 
       cost += static_cast<cost_t>(tmp_cost);
 
@@ -24,5 +24,11 @@ namespace pea {
 
     cost += static_cast<cost_t>(matrix.get(*f, path[0]));
     return cost;
+  }
+
+  cost_t
+  cost(const MSTMatrix &matrix, const ScoredPath &path) noexcept
+  {
+    return cost(matrix, static_cast<const Path&>(path));
   }
 } // namespace pea
