@@ -61,6 +61,7 @@ namespace pea {
     MSTMatrix() noexcept
       : MSTMatrix(0)
     {}
+
     MSTMatrix(int64_t size) noexcept;
     MSTMatrix(MSTMatrix &&mm) noexcept;
     ~MSTMatrix();
