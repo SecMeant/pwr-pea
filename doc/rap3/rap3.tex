@@ -12,6 +12,7 @@
 \usepackage{float}
 \usepackage{latexsym,amsmath}
 \marginsize{2.5cm}{2.5cm}{3cm}{3cm}
+\tolerance=6000
 
 
 \newcommand{\name}[1]{\sffamily\bfseries\scriptsize #1}
@@ -72,9 +73,13 @@
 
 \section{Opis problemu}
 
-Problem komiwojażera (ang. travelling salesman problem, TSP) jest zagadnieniem optymalizacyjnym, polegającym na znalezieniu minimalnego cyklu Hamiltona w pełnym grafie ważonym. Do rozwiązania problemu tym razem autor posłużył się dwoma algorytmami aproksymacyjnymi o których szerzej w dalszej częsci.
+Problem komiwojażera (ang. travelling salesman problem, TSP) jest zagadnieniem optymalizacyjnym, polegającym na znalezieniu minimalnego cyklu Hamiltona w pełnym grafie ważonym. Do rozwiązania problemu tym razem autor posłużył się dwoma algorytmami - genetycznym (ang. genetic), oraz mrówkowym
+(ang. ant colony optimization) o których szerzej w dalszej częsci.
 Do implementacji rozwiązania posłużył język C++, gdyż zdaniem autora pozwala on na wygodne opisywanie wysokopoziomowej abstrakcji oraz dostępne kompilatory
-potrafią generować efektywny kod. Testy przeprowadzane były na systemie Ubuntu Linux 19.10 64bit z kompilatorem clang 9.0 na procesorze Intel i5-3570K (4x3.8GHz) z 8GB RAM.
+potrafią generować efektywny kod. Testy przeprowadzane były na systemie Ubuntu Linux 19.10 64bit z kompilatorem clang 9.0 na procesorze Intel i5-3570K (4x3.8GHz) z 8GB RAM. Implementacja prezentowanego rozwiązania tworzona była z myśla o uzyskaniu jak najlepszej jej wydajności co pozwoli na wykonaniu
+większej ilości iteracji algorytmów z zachowaniem tego samego czasu wykonania.
+Zdaniem autora poniższa implementacja w pewnym zakresie spełnia opisane oczekiwania, chociaż bez wątpliwości jej możliwości nie zostały w pełni
+wykorzystane. Szczegóły optymalizacji omawiane są w punktach poświęconych opisowi implementacji poszczególnych rozwiązań.
 
 \section{Struktury danych - sposób przechowywania informacji}
 
@@ -104,22 +109,27 @@ Został jeszcze jeden element który wymaga krótkiego wyjaśnienia. Jest to fun
 oraz sekwencji kolejno odwiedzanych wierzchołków.
 
 \section{Algorytm genetyczny}
-\par Algorytmy genetyczne polegają na wykorzystują mechanizmy występujące w przyrodzie, a dokładniej próbuje symulować proces ewolucji biologicznej.
-Na potrzeby rozwiązania problemu definiuje się populacje, która w jest zbiorem możliwych rozwiązań problemów ( w tym przypadku jedną z poprawnych ścieżek).
+\par Algorytmy genetyczne wykorzystują towarzyszące wszystkim żywym ogrnizmom mechanizmy dotychczas dobrze zbadane i opisane w dziedzinie biologii,
+Mowa tutaj o ewoulcji biologicznej gatunków, a niniejszy program próbuje symulować jej proces w celu rozwiązania problemu komiwojażera.
+Na potrzeby rozwiązania problemu definiuje się populacje, która w tym przypadku  jest zbiorem możliwych rozwiązań problemu
+(jest jedną z poprawnych ścieżek).
 Na danej populacji przeprowadzamy operacje symulujące jej ewolucję w konsekwencji dochodząc do coraz to lepszych rezultatów. Taki wynik otrzymywany jest
-poprzez zdefiniowanie odpowiednich zasad i mechanizmów zachodzących w czasie tej symulacji. Głownycmi operacjami wykonywanymi w celu symulacji zjawiska
+poprzez zdefiniowanie odpowiednich zasad i mechanizmów zachodzących w czasie tej symulacji. Głownymi operacjami wykonywanymi w celu symulacji zjawiska
 ewolucji sa:
 
 \par \textbf{Rozmnażanie}
-(krzyżowanie) w którym bierze przypadku bierze udział dwoje rodziców, rozwiązań z poprzedniej generacji. Wynikiem tej operacji jest nowe rozwiązanie,
-które dodane jest do aktualnej póli gatunku.
+(krzyżowanie) w którym bierze udział dwoje rodziców, tj. rozwiązań z poprzedniej generacji. Wynikiem tej operacji jest potomek, tj. nowe rozwiązanie,
+które poddane zostaje ocenie pod względem przystosowania do środowiska w etapie selekcji (więcej informacji w punktach poniżej).
 
 \par \textbf{Mutacje},
 które polegają na wykonaniu losowych "przekłamań" w rozwiązaniu zaraz po utworzeniu nowego osobnika (rozwiązania).
-Efekt ten zachodzi z zadanych prawdopodobieństem.
+Efekt ten zachodzi z zadanym prawdopodobieństem i ma za zadanie wprowadzić zróżnicowanie do póli rozwiązań, tym samym pozytywnie oddziałowując na
+problem związany z "zakleszczeniem" się w obrębie lokalnego minimum.
 
 \par \textbf{Selekcja},
-polegająca na ocenie przystosowania danego osobnika (tutaj koszt scieżki - im mniejszy koszt tym lepiej przystosowany osobnik)
+polegająca na ocenie przystosowania danego osobnika, w tym przypadku liczony jest koszt tego rozwiązania.
+Dla tego konkretnego problemu niższy koszt rozwiązania oznacza lepsze rozwiązanie i tym samym lepsze przystosowanie.
+Tak ocenione rozwiązanie wzbogaca póle gatunku i obejmuje pozycje osobnika (rozwiązania), który może zostać poddany kolejnym krzyżowaniom.
 
 \subsection{Implementacja - rozmnażanie}
 Rozmnażanie (ang. crossing) zostało zaimplementawane na dwa sposoby. Pierwszym z nich jest PMX Crossover (Partially-mapped crossover).
@@ -130,24 +140,71 @@ wyborze zakresu rozwiązania jednego z rodziców oraz podstawieniu go w to samo 
 wypłeniona elementami drugiego rodzica. Takie wypłenienie jednak może spodowować powtarzające sie wierzchołki i dla tego problemu jest nie dopuszczalne.
 W celu naprawy rozwiązania ( pozbycia sie podwójnie występującuch wierzchołków) wierzchołki pobrane od drugiego z rodziców, jeżeli występują dwuktornie
 powinny zostać dopowiednio zamienione, tak, aby w ich miejscach pojawiły się wierzchołki dotychczas nie znajdujące sie w genotypie dziecka.
+Implementacja przedstawiona przez autora osiąga ten cel bez dodatkowych alokacji, przeprowadzając wszytkie wymagane poprawki "w miejscu", od razu na
+tablicy wierzchołków nowego potomka. Decyzja na implementację takiego wariantu rozwiązania została podjęta ze względu na relatywnie wolną implementację
+dynamicznej alokacji pamieci używanej w standardowej bibliotece wykorzystywanego języka oraz (w praktyce) bardzo dobrą wydajność przy przeglądzie
+małej wielkości tablic (zależnie od modelu procesora ta wartości może wachać się od kilkudziesięciu do nawet kilkuset elementów), nawet w przypadkach
+dużo słabszej teorytycznej złożoności obliczeniowej.
 Listing kodu z implementacją znajduje się poniżej.
 
-\pagebreak
-
-\lstinputlisting[caption=Struktura danych Path,language=C++]
+\lstinputlisting[caption=Implementacja PMX crossover "w miejscu",language=C++]
 {crossover-pmx.cc}
-
-\pagebreak
 
 \par \textbf{OX Crossover}
 \par Drugim z zastosowanych algorytmów krzyżowania jest OX Crossover, który podobnie jak poprzednik polega na losowym wyborze częsci pierwszego z rodziców,
-oraz przekopiowaniem go do rozwiązania-dziecka. Następnie zaczynając terować w rodzicu drugim od końca przekopiownego obszaru do jego początku
-(w trakcie iteracji jeżeli napotkamy koniec, zaczynamy od samego początku) i kolejno wstawiamy wierzchołki które jescze nie wystąpiły.
+oraz przekopiowaniem go do rozwiązania-potomka. Następnie, należy iterować, zaczynając od końca wylosowanego obszaru wymiany genów, aż dotrzemy do jego
+początku. Aby było to możliwe należy zresetować iterator na początek sekwencji po dotarciu na jego koniec. W trakcie iterowania do w rozwiązaniu
+potomnym należy umieszczać kolejne wierzchołi tylko jeżeli nie występują jeszcze u rozwiązania-potomka.
 Listing kodu z implementacją znajduje się poniżej.
 
 \lstinputlisting[caption=Struktura danych Path,language=C++]
 {crossover-ox.cc}
 
+\section{Algorytm mrówkowy}
+\par Algoytm mrówkowy jest metaheurystycznym algorytmem stadnym, który powstał jako wynik obserwacji i chęci naśladowania zachowania mrówek, które
+używając zjawiska stygmergii potrafia przekazywać między sobą informację o drodze którą przemierzają w celu zdobycia pokarmu, dzięki temu są w stanie
+współpracować i osiągać dużo lepsze rezultaty. Stworzenia te, jak się okazuje przemieszczając się, na odwiedzonych ścieżkach pozostawiają parującą
+substancję zwaną feromonami. Feromony pozostawione przez poprzednie osobniki kroczące daną scieżką są wykrywane przez kolejne i odczytywane są
+jako wskazówka dotycząca kierunku w którym mrówka powinna się kierować. Takie zachowanie z czasem skutkuje samoistnym wyznaczeniem najszybszej ścieżki
+do celu. Dzieję się tak prawdopodobnie z tego powodu, że mrówki podróżując w stronę pożywienia będą częsciej i gęsciej oznacza te scieżki, które są
+najkrótsze, ze względu na to że nateżenie ruchu bedzie na nich największe ze względu na szybszą podróż względem pozostałych. Ścieżki najczęsciej odwiedzane
+będą pokryte największa ilością feromonu, a więc inne osobniki z łatwością będą wybierały właśnie tę scieżke i tym samym potęgowały dodatkowo ten efekt,
+gdyż same też wydzielać będą dodatkowe ilości feromonu. W celu zasymulowania tego zachowania autor przedstawił rozszerzyć macierz sąsiedztwa o drógą,
+oddzielną macierz o takiej samej wielkości i strukturze, ale przechowującej ilość posiadanego feromonu dla każdej ze scieżek, to jest każdej dwu
+elementowej pary wierzchołków. Z podobieństwa tych dwóch struktur wynika bezpośrednio, że ilość feromonu różni się, zależnie od tego w którą stronę
+rozpatrujemy połączenie między wierzchołkami - ilość feromony nie musi być równa gdy rozpatrujemy scieżkę z miasta A do miasta B oraz z miasta B do A.
+Do przechowywania informacji o każdej z mrówek, autor postanowił zastosować strukturę, która przechowuje informację o dotychczasowej drodze przebytej
+przez mrówkę, oraz jej dotychczasowy koszt (aby nie wyliczać go za każdym razem na nowo gdy dołączany jest kolejny wierzchołek a jedynie zaktualizować
+ten koszt o wartość od aktualnego do następnego wierzchołka). Dodatkowo przechowywana jest referencja do macierzy sąsiedztwa oraz tej z poziomami
+feromony dla każdej z scieżki, aby ułatwić szybkie sprawdzanie kosztu krawędzi po której podróżują mrówki oraz, aby mogły aktualizować stan feromonu
+przy wykonywaniu kolejnych ruchów z wierzchołka do wierzchołka. Dodatkowo autor postanowił wydzielić operację ruchu, oraz aktualizacji poziomu feromonu
+do osobnej abstrakcji, aby wygodnie zaimplementować różne warianty algorytmu, o których więcej później.
+
+\lstinputlisting[caption=Implementacja klasy przechowującej informację o mrówce,language=C++]
+{ant-impl.cc}
+
+Klasa bazowa, której implementacja widnieje na poprzednim listingu. Jej implementacja została pozbawiona kilku drobnych szczegółów w celu poprawienia
+jej czytelności. To co jest jednak ważne, to trzy metody które ona implementuje.
+Pierwszą z nich jest metoda resetowania (życia/scieżki) mrówki. Kiedy mrówka przejdzie po tylu wierzchołkach, że zapełni swoją przebytą scieżkę, tj.
+jej rozmiar zrówna się z rozmiarem problemu, wówczas uzyskana scieżka sprawdzana jest pod kątem atrakcyjności względem dotychczas zapisanego
+najlepszego rozwiązania i jeżeli osiąga lepszy (niższy) koszt, zajmuje jego miejsce. Po tym, scieżka mrówki zostaje zresetowana i zainicjalizowana
+losowo wybranym wierzchołkiem początkowym, od którego cały cykl rozpocznie się na nowo.
+Kolejne dwie metody są ze sobą scieśle powiązane, dlatego zostaną omwione wspólnie. Mowa o metodze decide oraz value, Druga z nich odpowiedzialna
+jest za ocene ścieżki (przynaniu jej konkretnej wartości), zależnie od ilości posiadanego feromonu oraz jej kosztu. Wartości scieżki obliczane jest 
+za pomocą równiania przedstawionego na listingu ponizej. Warto, jeszcze dodać, że w przypadku zerowego kosztu scieżki zwracana jest arbitralnie wybrana
+"bardzo wysoka" wartość, która dzięki temu faworyzuje te ścieżki. Wartość nie może być jednak zbyt duża, aby nie powodować zakleszczenia się w minimum
+loklanym poprzez ślepe podąrzanie jedynie za scieżkami o zerowym koszcie, gdyż w efekcie prowadzić mogą do bardzo kosztownej drogi w ostateczności.
+
+\lstinputlisting[caption=Implementacja podstawowych operacji - reset oraz value,language=C++]
+{ant-baseop.cc}
+
+Ostanią już ze wspomnianych funkcji klasy bazowej jest funkcja odpowiedzialna za podjęcie decyzji o tym która drogę ostatecznie wybrać gdy przyjdzie
+czas wykonania ruchu do kolejnego miasta. Tą funkcją jest funkcja decide. Wybiera ona scieżkę z zadanym prawdopodobieństwem dodatkowo bazując na wartości,
+którą otrzymała od przedstawionej wcześniej funkcji value. Dodatkowo, obligatoryjny jest jeszcze warunek nieobecności na dotychczasowej przebytej ścieżce,
+z oczywistych względów.
+
+\lstinputlisting[caption=Implementacja podstawowych operacji - decide,language=C++]
+{ant-decide.cc}
 
 \pagebreak
 \section{Eksperymenty obliczeniowe}

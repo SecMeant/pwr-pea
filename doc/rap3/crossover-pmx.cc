@@ -1,5 +1,6 @@
-void
-pmx_patch_(Path &p, const Path &p1, const Path &p2, size_t i, size_t xbegin, size_t xend) FORCE_INLINE
+inline static void
+pmx_patch_(Path &p, const Path &p1, const Path &p2, size_t i, size_t xbegin, size_t xend)
+FORCE_INLINE
 {
 	auto oldnode = p[i];
 	point_type newnode;
