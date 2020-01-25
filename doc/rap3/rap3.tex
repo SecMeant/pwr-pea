@@ -67,7 +67,7 @@
 \title{Sprawozdanie SPD}
 \begin{document}
 % #1 - nazwa kursu #2 - kierunek  #3 - termin #4 - temat #5 - problem #6 - data
-\frontpage{Projektowanie Efektywnych Algorytmów}{Informatyka}{Czwartek 19:05}{Przeszukiwanie tabu oraz simulowanie wyżarzanie}{TSP}{\today}
+\frontpage{Projektowanie Efektywnych Algorytmów}{Informatyka}{Czwartek 19:05}{Algorytmy metaheurystyczne na przykładzie algorytmu genetycznego oraz mrówkowego}{TSP}{\today}
 \pagestyle{empty}
 \newpage
 
@@ -105,7 +105,7 @@ Jego implementacja znajduje sie poniżej.
 \lstinputlisting[caption=Struktura danych Path,language=C++]
 {path.hpp}
 
-Został jeszcze jeden element który wymaga krótkiego wyjaśnienia. Jest to funkcja kosztu scieżki która zwraca koszt danej scieżki na podstawie argumentu w postaci macierzy sąsiedztwa
+Został jeszcze jeden element który wymaga krótkiego wyjaśnienia. Jest to funkcja cost która zwraca koszt danej scieżki na podstawie argumentu w postaci macierzy sąsiedztwa
 oraz sekwencji kolejno odwiedzanych wierzchołków.
 
 \section{Algorytm genetyczny}
@@ -115,7 +115,7 @@ Na potrzeby rozwiązania problemu definiuje się populacje, która w tym przypad
 (jest jedną z poprawnych ścieżek).
 Na danej populacji przeprowadzamy operacje symulujące jej ewolucję w konsekwencji dochodząc do coraz to lepszych rezultatów. Taki wynik otrzymywany jest
 poprzez zdefiniowanie odpowiednich zasad i mechanizmów zachodzących w czasie tej symulacji. Głownymi operacjami wykonywanymi w celu symulacji zjawiska
-ewolucji sa:
+ewolucji są:
 
 \par \textbf{Rozmnażanie}
 (krzyżowanie) w którym bierze udział dwoje rodziców, tj. rozwiązań z poprzedniej generacji. Wynikiem tej operacji jest potomek, tj. nowe rozwiązanie,
@@ -157,7 +157,7 @@ początku. Aby było to możliwe należy zresetować iterator na początek sekwe
 potomnym należy umieszczać kolejne wierzchołi tylko jeżeli nie występują jeszcze u rozwiązania-potomka.
 Listing kodu z implementacją znajduje się poniżej.
 
-\lstinputlisting[caption=Struktura danych Path,language=C++]
+\lstinputlisting[caption=Implementacja OX crossover,language=C++]
 {crossover-ox.cc}
 
 \section{Algorytm mrówkowy}
@@ -201,10 +201,27 @@ loklanym poprzez ślepe podąrzanie jedynie za scieżkami o zerowym koszcie, gdy
 Ostanią już ze wspomnianych funkcji klasy bazowej jest funkcja odpowiedzialna za podjęcie decyzji o tym która drogę ostatecznie wybrać gdy przyjdzie
 czas wykonania ruchu do kolejnego miasta. Tą funkcją jest funkcja decide. Wybiera ona scieżkę z zadanym prawdopodobieństwem dodatkowo bazując na wartości,
 którą otrzymała od przedstawionej wcześniej funkcji value. Dodatkowo, obligatoryjny jest jeszcze warunek nieobecności na dotychczasowej przebytej ścieżce,
-z oczywistych względów.
+z oczywistych względów. Implementacja funkcji decide znajduje sie na listingu poniżej.
 
 \lstinputlisting[caption=Implementacja podstawowych operacji - decide,language=C++]
 {ant-decide.cc}
+
+Pozostaje jeszcze zdefiniować procedurę związana z wykonaniem kroku przez mrówkę. Ich implementacja różni się w zależności od zastosowanej strategii
+dystybucji feromonu. Aby wygodnie wydzielić wspomnianą abtrakcję autor zdecydował się na przedstawienie dodatkowej klasy, która w odpowiedni sposób
+implementuje potrzebną metodę poruszania sie po grafie. Jej implementacja znajduje się na listingu poniżej.
+
+\lstinputlisting[caption=Wydzielenie operacji ruchu do osobnej abstrakcji,language=C++]
+{ant-spec.cc}
+
+Implementacja konkretnej strategi ruchu osiągana jest poprzez jawną specjalizacje szablonu, tak jak pokazano na listingu poniżej.
+
+\lstinputlisting[caption=Jawna specjalizacja szablonu dla każdej z strategii,language=C++]
+{ant-move.cc}
+
+W miejscu użycia obiektu this->phro, intencja programisty może nie być do końca oczywista, dlatego autor zobiązany jest udzielić pewnego wyjaśnienia.
+Wspomniany obiekt jest opsiywaną wcześniej macierzą (podobną do sąsiedztwa), która przechowuje informację o ilości zgromadzonego feromonu na wskazywanej
+ścieżce. Metoda set ustawia wskazaną ilość feromonu na wskazanej scieżce. W przypadku strategii DAS użyta została stała (zdefiniowana w zasięgu głównej
+klasy) "phro\_place\_amnt" i występuje w postaci parametru który w czasie testu dobierany empirycznie, tak aby dawać jak najlepsze wyniki.
 
 \pagebreak
 \section{Eksperymenty obliczeniowe}
