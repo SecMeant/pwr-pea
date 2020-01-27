@@ -236,8 +236,6 @@ namespace pea::genetic {
       auto &local_best = this->mating_pool.back();
       if (local_best.get_cost() < this->best.get_cost()) {
         this->best = local_best; 
-        fmt::print("New best {}\n", this->best.get_cost());
-        this->stat();
       }
 
     }
@@ -312,7 +310,7 @@ namespace pea::genetic {
     {
       this->reset();
 
-      auto generation_count = 35 * this->matrix.size();
+      auto generation_count = 5 * this->matrix.size(); // 5
       mating_pool_t mp_copy;
       for (auto i = 0ul; i < generation_count; ++i) {
 

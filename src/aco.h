@@ -91,7 +91,6 @@ namespace pea::aco {
           if (ant.get_cost() < this->cost) {
             this->best = ant.steal_path_();
             this->cost = ant.get_cost();
-            fmt::print("new best cost {}\n", this->cost);
           }
 
           ant.reset(rand() % node_count);
