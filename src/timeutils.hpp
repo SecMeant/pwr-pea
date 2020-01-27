@@ -40,14 +40,16 @@ namespace pea {
   {
     using namespace std::chrono_literals;
 
-    constexpr auto tries = 50;
+    constexpr auto tries = 5;
     auto total_time = 0ns;
 
     for (auto i = 0; i < tries; ++i) {
+      fmt::print(stdout, "\r{}/{}", i, tries); fflush(stdout);
       total_time += std::chrono::duration_cast<std::chrono::milliseconds>(
         measure(std::forward<Function>(f), std::forward<Args>(args)...));
     }
 
+    fmt::print("\r{}/{} DONE\n", tries, tries);
     return total_time / tries;
   }
 

@@ -55,6 +55,9 @@ main(int argc, char **argv)
   auto psize = 0;
   psize = atoi(argv[1]);
 
+  if (best_scores.find(psize) == std::end(best_scores))
+    return -1;
+
   if (psize == 0)
     return -1;
 
@@ -66,11 +69,7 @@ main(int argc, char **argv)
    //tabu_solver<swap_op, init_strat_e::random> t(std::move(matrix));
    //genetic::solver<genetic::cross_strat::ox,
    //genetic::select_strat::competition, 25> t(std::move(matrix)); // 25
-  aco::solver<> t(std::move(matrix));
-  auto p = t.solve();
-  auto cost = pea::cost(t.get_matrix(), p);
-  auto bestcost = best_scores[psize];
-  fmt::print(" {} {} {}%\n", bestcost, cost, static_cast<float>((cost - bestcost)) / static_cast<float>(bestcost) * 100.0f);
-
+  aco::solver<50, 500> t(std::move(matrix));
+  measure_and_log(f_out, psize, {"ant", "50", "500"}, [&t]{t.solve();});
   fclose(f_out);
 }

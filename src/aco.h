@@ -14,13 +14,14 @@
 
 namespace pea::aco {
   constexpr size_t DefaultColonySize = 1000;
+  constexpr size_t DefaultMaxIter = 500;
 
-  template<size_t ColonySize = DefaultColonySize>
+  template<size_t ColonySize = DefaultColonySize, size_t MaxIter = DefaultMaxIter>
   class solver
   {
   public:
     static constexpr size_t colony_size = ColonySize;
-    static constexpr size_t max_iter = 500;
+    static constexpr size_t max_iter = MaxIter;
     static constexpr size_t start_pheromones = 700;
     static constexpr size_t evaporation_coeff = 2;
 

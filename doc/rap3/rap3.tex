@@ -243,6 +243,96 @@ Poniżej znajduje się kod realizujący mierzenie czasu.
 Poniżej znajdują się wyniki pomiarów zgromadzone dla różnych wariantów każdego z algorytmów.
 
 \begin{center}
+\begin{tabularx}{1.0\textwidth} {
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X
+	| >{\centering\arraybackslash}X | }
+	\hline
+	\multicolumn{5}{|c|}{Algorytm mrówkowy - wyniki ekperymentu 1} \\
+	\hline
+	Wielkość problemu & Czas wykonania (ms) & Błąd procentowy (w przybliżeniu) & Ilość mrówek & Liczba iteracji \\
+	\hline
+	17 & 112 & 0 &100 &50 \\
+	\hline
+	34 & 352 & 0 &100 &50 \\
+	\hline
+	36 & 398 & 0 &100 &50 \\
+	\hline
+	39 & 458 & 0 &100 &50 \\
+	\hline
+	43 & 496 & 1 &100 &50 \\
+	\hline
+	45 & 596 & 2 &100 &50 \\
+	\hline
+	48 & 716 & 5 &100 &50 \\
+	\hline
+	53 & 804 & 5 &100 &50 \\
+	\hline
+	56 & 916 & 4 &100 &50 \\
+	\hline
+	65 & 1230 & 8 &100 &50 \\
+	\hline
+	70 & 1444 & 6 &100 &50 \\
+	\hline
+	71 & 1410 & 11 &100 &50 \\
+	\hline
+	100 & 2916 & 12 &100 &50 \\
+	\hline
+	17 & 162 & 0 &150 &50 \\
+	\hline
+	34 & 522 & 0 &150 &50 \\
+	\hline
+	36 & 590 & 0 &150 &50 \\
+	\hline
+	39 & 682 & 0 &150 &50 \\
+	\hline
+	43 & 740 & 2 &150 &50 \\
+	\hline
+	45 & 890 & 1 &150 &50 \\
+	\hline
+	48 & 1076 & 4 &150 &50 \\
+	\hline
+	53 & 1196 & 4 &150 &50 \\
+	\hline
+	56 & 1364 & 4 &150 &50 \\
+	\hline
+	65 & 1844 & 6 &150 &50 \\
+	\hline
+	70 & 2174 & 8 &150 &50 \\
+	\hline
+	71 & 2108 & 9 &150 &50 \\
+	\hline
+	100 & 4376 & 10 &150 &50 \\
+	\hline
+	17 & 214 & 0 &200 &50 \\
+	\hline
+	34 & 696 & 0 &200 &50 \\
+	\hline
+	36 & 774 & 0 &200 &50 \\
+	\hline
+	39 & 908 & 0 &200 &50 \\
+	\hline
+	43 & 986 & 3 &200 &50 \\
+	\hline
+	45 & 1176 & 3 &200 &50 \\
+	\hline
+	48 & 1430 & 5 &200 &50 \\
+	\hline
+	53 & 1582 & 4 &200 &50 \\
+	\hline
+	56 & 1814 & 7 &200 &50 \\
+	\hline
+	65 & 2442 & 10 &200 &50 \\
+	\hline
+	70 & 2912 & 7 &200 &50 \\
+	\hline
+	71 & 2798 & 9 &200 &50 \\
+	\hline
+	100 & 5844 & 9 &200 &50 \\
+	\hline
+\end{tabularx}
 
 \begin{tabularx}{1.0\textwidth} {
 	| >{\centering\arraybackslash}X
@@ -251,25 +341,90 @@ Poniżej znajdują się wyniki pomiarów zgromadzone dla różnych wariantów ka
 	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{5}{|c|}{Przeszukiwania tabu - metada zamiany (swap) - start losowy} \\
+	\multicolumn{5}{|c|}{Algorytm mrówkowy- wyniki eksperymentu 2} \\
 	\hline
-	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	Wielkość problemu & Czas wykonania (ms) & Błąd procentowy (w przybliżeniu)& Ilość mrówek & Liczba iteracji \\
 	\hline
-	17 & 4678691 & 2085 & 2085 & 0 \\
+	17 & 110 & 0 &50 &100 \\
 	\hline
-	21 & 8122241 & 2707 & 2707 & 0 \\
+	34 & 352 & 0 &50 &100 \\
 	\hline
-	24 & 11574596 & 1298 & 1272 & 26 \\
+	36 & 390 & 0 &50 &100 \\
 	\hline
-	26 & 14488670 & 937 & 937 & 0 \\
+	39 & 460 & 0 &50 &100 \\
 	\hline
-	29 & 19540981 & 1656 & 1610 & 46 \\
+	43 & 502 & 4 &50 &100 \\
 	\hline
-	42 & 55657465 & 777 & 699 & 78 \\
+	45 & 600 & 7 &50 &100 \\
 	\hline
-	58 & 140285446 & 30986 & 25395 & 5591 \\
+	48 & 710 & 6 &50 &100 \\
+	\hline
+	53 & 800 & 8 &50 &100 \\
+	\hline
+	56 & 914 & 9 &50 &100 \\
+	\hline
+	65 & 1230 & 10 &50 &100 \\
+	\hline
+	70 & 1436 & 8 &50 &100 \\
+	\hline
+	71 & 1388 & 10 &50 &100 \\
+	\hline
+	100 & 2878 & 17 &50 &100 \\
+	\hline
+	17 & 162 & 0 &50 &150 \\
+	\hline
+	34 & 534 & 0 &50 &150 \\
+	\hline
+	36 & 588 & 0 &50 &150 \\
+	\hline
+	39 & 682 & 0 &50 &150 \\
+	\hline
+	43 & 750 & 1 &50 &150 \\
+	\hline
+	45 & 888 & 3 &50 &150 \\
+	\hline
+	48 & 1070 & 6 &50 &150 \\
+	\hline
+	53 & 1178 & 4 &50 &150 \\
+	\hline
+	56 & 1350 & 4 &50 &150 \\
+	\hline
+	65 & 1826 & 8 &50 &150 \\
+	\hline
+	70 & 2150 & 9 &50 &150 \\
+	\hline
+	71 & 2070 & 10 &50 &150 \\
+	\hline
+	100 & 4304 & 15 &50 &150 \\
+	\hline
+	17 & 224 & 0 &50 &200 \\
+	\hline
+	34 & 706 & 0 &50 &200 \\
+	\hline
+	36 & 782 & 0 &50 &200 \\
+	\hline
+	39 & 910 & 0 &50 &200 \\
+	\hline
+	43 & 1016 & 1 &50 &200 \\
+	\hline
+	45 & 1170 & 2 &50 &200 \\
+	\hline
+	48 & 1420 & 3 &50 &200 \\
+	\hline
+	53 & 1562 & 3 &50 &200 \\
+	\hline
+	56 & 1802 & 2 &50 &200 \\
+	\hline
+	65 & 2408 & 7 &50 &200 \\
+	\hline
+	70 & 2852 & 8 &50 &200 \\
+	\hline
+	71 & 2730 & 7 &50 &200 \\
+	\hline
+	100 & 5706 & 8 &50 &200 \\
 	\hline
 \end{tabularx}
+
 \bigskip
 
 \begin{tabularx}{1.0\textwidth} {
@@ -324,90 +479,6 @@ Poniżej znajdują się wyniki pomiarów zgromadzone dla różnych wariantów ka
 	42 & 71764416 & 699 & 699 & 0 \\
 	\hline
 	58 & 169588431 & 25395 & 25395 & 0 \\
-	\hline
-\end{tabularx}
-\bigskip
-
-\begin{tabularx}{1.0\textwidth} {
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X | }
-	\hline
-	\multicolumn{5}{|c|}{Simulowane wyżarzanie - liniowa regulacja temperatury - start losowy} \\
-	\hline
-	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
-	\hline
-	17 & 143268183& 2427 & 2085 & 342 \\
-	\hline
-	21 & 145967248& 3568 & 2707 & 861 \\
-	\hline
-	24 & 148627322& 1957 & 1272 & 685 \\
-	\hline
-	26 & 150143893& 1551 & 937 & 614 \\
-	\hline
-	29 & 153477613& 2508 & 1610 & 898 \\
-	\hline
-	42 & 163647317& 1897 & 699 & 1198 \\
-	\hline
-	58 & 177813088& 57551 & 25395 & 32156 \\
-	\hline
-\end{tabularx}
-\bigskip
-
-\begin{tabularx}{1.0\textwidth} {
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X | }
-	\hline
-	\multicolumn{5}{|c|}{Simulowane wyżarzanie - geometryczna regulacja temperatury - start losowy} \\
-	\hline
-	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
-	\hline
-	17 & 150094480 & 2085  & 2085  & 0    \\
-	\hline
-	21 & 152922148 & 2757  & 2707  & 50   \\
-	\hline
-	24 & 155708966 & 1290  & 1272  & 18   \\
-	\hline
-	26 & 157297797 & 965   & 937   & 28   \\
-	\hline
-	29 & 160790359 & 1683  & 1610  & 73   \\
-	\hline
-	42 & 171444619 & 747   & 699   & 48   \\
-	\hline
-	58 & 186285346 & 28461 & 25395 & 3066 \\
-	\hline
-\end{tabularx}
-\bigskip
-
-\begin{tabularx}{1.0\textwidth} {
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X | }
-	\hline
-	\multicolumn{5}{|c|}{Simulowane wyżarzanie - logarytmiczna regulacja temperatury - start losowy} \\
-	\hline
-	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
-	\hline
-	17 & 2090093 & 2085 & 2085 & 0 \\
-	\hline
-	21 & 2243627 & 2760 & 2707 & 53 \\
-	\hline
-	24 & 2072114 & 1330 & 1272 & 58 \\
-	\hline
-	26 & 2103146 & 1032 & 937 & 95 \\
-	\hline
-	29 & 2152118 & 1730 & 1610 & 120 \\
-	\hline
-	42 & 2366575 & 958 & 699 & 259 \\
-	\hline
-	58 & 2634296 & 27326 & 25395 & 1931 \\
 	\hline
 \end{tabularx}
 \bigskip
