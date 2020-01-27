@@ -2,6 +2,7 @@
 #include <chrono>
 #include <fmt/format.h>
 #include <functional>
+#include <string>
 #include <utility>
 
 namespace pea {
@@ -33,6 +34,23 @@ namespace pea {
     return total_time / tries;
   }
 
+  template<typename Function, typename... Args>
+  std::chrono::nanoseconds
+  measure_milli(Function &&f, Args &&... args)
+  {
+    using namespace std::chrono_literals;
+
+    constexpr auto tries = 50;
+    auto total_time = 0ns;
+
+    for (auto i = 0; i < tries; ++i) {
+      total_time += std::chrono::duration_cast<std::chrono::milliseconds>(
+        measure(std::forward<Function>(f), std::forward<Args>(args)...));
+    }
+
+    return total_time / tries;
+  }
+
   template<typename DataStructure, typename Operation, typename... Args>
   std::chrono::nanoseconds
   measure_operation_nano(int32_t initial_size,
@@ -54,11 +72,16 @@ namespace pea {
   // passes args to measure_operation_nano.
   template<typename... Args>
   void
-  measure_and_log(const char *m_name, const char *f_name, Args &&... args)
+  measure_and_log(FILE *f_out,
+                  int psize,
+                  const std::vector<std::string> &params,
+                  Args &&... args)
   {
-    FILE *f_out = fopen(f_name, "a");
-    auto time = measure_nano(std::forward<Args>(args)...);
-    fmt::print(f_out, "{};{};\n", m_name, time.count());
-    fclose(f_out);
+    auto time = measure_milli(std::forward<Args>(args)...);
+    fmt::print(f_out,
+               "{} & {} & {} \\\\\n",
+               psize,
+               time.count(),
+               fmt::join(params, " &"));
   }
 } // namespace pea
