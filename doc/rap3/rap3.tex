@@ -431,61 +431,133 @@ Poniżej znajdują się wyniki pomiarów zgromadzone dla różnych wariantów ka
 	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{5}{|c|}{Przeszukiwania tabu - metada wstawiania (insert) - start losowy} \\
+	\multicolumn{4}{|c|}{Algorytm genetyczny - wyniki eksperymentu dla krzyżowania ox} \\
 	\hline
-	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	wielkość problemu & czas wykonania (ms) & błąd procentowy (w przybliżeniu) & wielkość populacji \\
 	\hline
-	17 & 5995145 & 3382 & 2085 & 1297 \\
+	17  & 302   & 0   & 25 \\
 	\hline
-	21 & 10298361 & 4673 & 2707 & 1966 \\
+	34  & 902   & 0   & 25 \\
 	\hline
-	24 & 14680920 & 3315 & 1272 & 2043 \\
+	36  & 1004  & 0   & 25 \\
 	\hline
-	26 & 18122428 & 2426 & 937 & 1489 \\
+	39  & 1176  & 0   & 25 \\
 	\hline
-	29 & 24541917 & 4855 & 1610 & 3245 \\
+	43  & 1448  & 0   & 25 \\
 	\hline
-	42 & 68625855 & 2934 & 699 & 2235 \\
+	45  & 1566  & 0   & 25 \\
 	\hline
-	58 & 179318868 & 113213 & 25395 & 87818 \\
+	48  & 1834  & 2   & 25 \\
+	\hline
+	53  & 2236  & 3   & 25 \\
+	\hline
+	56  & 2572  & 2   & 25 \\
+	\hline
+	65  & 3810  & 6   & 25 \\
+	\hline
+	70  & 4394  & 5   & 25 \\
+	\hline
+	71  & 4548  & 7   & 25 \\
+	\hline
+	100 & 10878 & 13  & 25 \\
+	\hline
+
+	17  & 1582  & 0   & 50 \\
+	\hline
+	34  & 4318  & 0   & 50 \\
+	\hline
+	36  & 4790  & 0   & 50 \\
+	\hline
+	39  & 5544  & 0   & 50 \\
+	\hline
+	43  & 6726  & 0   & 50 \\
+	\hline
+	45  & 7122  & 0   & 50 \\
+	\hline
+	48  & 8102  & 0   & 50 \\
+	\hline
+	53  & 9910  & 1   & 50 \\
+	\hline
+	56  & 11290 & 0   & 50 \\
+	\hline
+	65  & 15520 & 4   & 50 \\
+	\hline
+	70  & 18750 & 2   & 50 \\
+	\hline
+	71  & 19340 & 6   & 50 \\
+	\hline
+	100 & 45292 & 9   & 50 \\
 	\hline
 \end{tabularx}
-\bigskip
 
 \begin{tabularx}{1.0\textwidth} {
 	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X
-	| >{\centering\arraybackslash}X
 	| >{\centering\arraybackslash}X | }
 	\hline
-	\multicolumn{5}{|c|}{Przeszukiwania tabu - metada odwrócenia (reverse) - start losowy} \\
+	\multicolumn{4}{|c|}{Algorytm genetyczny - wyniki eksperymentu dla krzyżowania pmx} \\
 	\hline
-	Wielkość problemu & Czas wykonania (ns) & Koszt znalezionej drogi & Koszt najlepszej drogi & błąd \\
+	wielkość problemu & czas wykonania (ms) & błąd procentowy (w przybliżeniu) & wielkość populacji \\
 	\hline
-	17 & 5845171 & 2085 & 2085 & 0 \\
+	17  & 210   & 0   & 25 \\
 	\hline
-	21 & 10171492 & 2707 & 2707 & 0 \\
+	34  & 496   & 0   & 25 \\
 	\hline
-	24 & 14407409 & 1272 & 1272 & 0 \\
+	36  & 522   & 0   & 25 \\
 	\hline
-	26 & 18198326 & 937 & 937 & 0 \\
+	39  & 606   & 0   & 25 \\
 	\hline
-	29 & 24290646 & 1615 & 1610 & 5 \\
+	43  & 660   & 1   & 25 \\
 	\hline
-	42 & 71764416 & 699 & 699 & 0 \\
+	45  & 702   & 2   & 25 \\
 	\hline
-	58 & 169588431 & 25395 & 25395 & 0 \\
+	48  & 778   & 2   & 25 \\
+	\hline
+	53  & 862   & 5   & 25 \\
+	\hline
+	56  & 912   & 5   & 25 \\
+	\hline
+	65  & 1106  & 9   & 25 \\
+	\hline
+	70  & 1238  & 12  & 25 \\
+	\hline
+	71  & 1256  & 11  & 25 \\
+	\hline
+	100 & 1982  & 11  & 25 \\
+
+	\hline
+	17  & 964   & 0 & 50 \\
+	\hline
+	34  & 2352  & 0 & 50 \\
+	\hline
+	36  & 2474  & 0 & 50 \\
+	\hline
+	39  & 2840  & 0 & 50 \\
+	\hline
+	43  & 3158  & 0 & 50 \\
+	\hline
+	45  & 3422  & 1 & 50 \\
+	\hline
+	48  & 3524  & 1 & 50 \\
+	\hline
+	53  & 4086  & 3 & 50 \\
+	\hline
+	56  & 4224  & 2 & 50 \\
+	\hline
+	65  & 5206  & 4 & 50 \\
+	\hline
+	70  & 5872  & 7 & 50 \\
+	\hline
+	71  & 5938  & 10 & 50 \\
+	\hline
+	100 & 9458  & 10 & 50 \\
 	\hline
 \end{tabularx}
-\bigskip
 
 \end{center}
-
-\newpage
 
 \newpage
 
