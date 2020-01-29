@@ -565,8 +565,16 @@ Poniżej znajdują się wyniki pomiarów zgromadzone dla różnych wariantów ka
 \hspace{\parindent}
 \par Algorytm genetyczny, mimo polegania w dużym stopniu na procesach losowych daje dobre rezultaty. Strategią krzyżowania, która najlepiej sprawdziła
 się w tym przypadku jest OX Crossover w połączeniu z selekcja w trybie rankingowym. Bardzo ważnym elementem algorytmu okazało się wymiana aktualnej
-populacji mimo otrzymywania chilowo gorszych wyników z jednoczesnym zachowaniem częsci najlepszej populacji z generacji poprzedniej. Prostota implementacji
-tego algorytmu oraz jego efektywność zdecydowanie umieszcza go na pozycji algorytmów którego powinny być rozważone przy rozwiązywaniu innych problemów.
+populacji mimo otrzymywania chilowo gorszych wyników z jednoczesnym zachowaniem częsci najlepszej populacji z generacji poprzedniej. Implementacja wcześniej
+testowana przez autora, której brakowało wspomnianej cechy bardzo szybko zapełniała pulę rozwiązań podobnymi do siebie rozwiązaniami, a przez to cały algorytm
+grzązł w lokalnym minimum. Promowanie zróżnicowania w puli zdecydowanie miała pozytywny wpływ na wynik całego algorytmu. Prostota implementacji
+tego algorytmu oraz jego efektywność zdecydowanie umieszcza go na pozycji aglorytmu który powinien być rozważonany przy rozwiązywaniu innych problemów.
+
+\par Algorytm mrówkowy, również w dużej mierze polega na elementach losowości, jednakże tak jak w przypadku poprzedniego algorytmu dostacza relatywnie dobrych rozwiązań.
+Ciężko jest stwierdzić jednoznacznie który algorytm dostarcza lepszych rozwiązań. Autor pragnie jednak zaznaczyć, że dobranie parametrów algorytmu mrówkowego, tak aby uzyskiwać
+średnio dobre rezultaty był ekstremalnie trudny. Ostatecznie autorowi udało ustalić się zestaw parametrów, odmienny dla różnych grup (podzielonych zależnie od wielkości problemu),
+który dostatecznie zbliżył się do akceptowalnych rozwiązań. Nie wykluczone, że dalsze optymalizacje mogą zostać poczynione pod kątem konkretnego problemu i tym samym dać jeszcze lepsze
+rezultaty, niż te które udało się uzykać autorowi.
 
 \bibliographystyle{abbrv}
 \bibliography{ref}
